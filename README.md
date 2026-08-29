@@ -1,38 +1,41 @@
-# Detection Engineering
+# detection-engineering
 
-**Status: in progress** — this repo tracks detection rules as I build them through a structured detection-engineering study plan. It is personal lab work, not a production rule set.
+Sigma rules mapped to ATT&CK, converted to KQL for Sentinel. This is the core of the study plan — everything else in my portfolio kind of orbits around it.
 
-## What this is
-Sigma rules and their Microsoft Sentinel (KQL) conversions, mapped to MITRE ATT&CK, covering identity and cloud-account abuse scenarios.
+I'm doing it this way (Sigma first, KQL second) on purpose. Writing the detection logic in Sigma forces me to think about the actual condition separately from "how do I query this in KQL," and it means the same rule could theoretically target Splunk or Elastic later without rewriting the logic from scratch. Whether that portability ever matters for me personally, I don't know yet — but it's how real detection engineering teams do it, so I'm doing it too.
 
-## Why I built it
-To practice writing detections the way a detection-engineering team actually works: rule → data source → ATT&CK technique → validation status, rather than one-off scripts.
+## What's in here
 
-## How it works
-- `sigma-rules/` — 8 vendor-agnostic Sigma YAML rules, spanning sign-in, audit-log, M365, and endpoint telemetry
-- `kql-conversions/pipelines/azuread-table-mappings.yml` — a custom [pySigma](https://github.com/SigmaHQ/pySigma) processing pipeline mapping `SigninLogs`, `AuditLogs`, and `OfficeActivity` table targets (the built-in `sentinel_asim` pipeline only auto-maps a handful of categories, so this fills the gap for Entra ID/M365)
-- `kql-conversions/generated/` — the KQL output, ready to paste into a Sentinel Log Analytics workspace
-- `attack-mapping.csv` — Rule → ATT&CK Technique → Data Source → Status
-- `Makefile` — `make convert` regenerates every `.kql` file from the Sigma sources using [sigma-cli](https://github.com/SigmaHQ/sigma-cli) + the `sentinelasim`/`kusto` plugins
-- `llm-triage/` — two LLM-assisted triage scripts (Category 6 of the test-case catalog) — see its own README
-- `local-lab/` — self-hosted Wazuh SIEM (see below)
+- `sigma-rules/` — 8 rules right now, covering sign-in abuse, Entra ID audit log tampering, M365 exfiltration, and one endpoint rule (PowerShell)
+- `kql-conversions/pipelines/azuread-table-mappings.yml` — a small pySigma pipeline I had to write myself
+- `kql-conversions/generated/` — the actual KQL, one file per rule
+- `attack-mapping.csv` — rule, technique, data source, status, in one table
+- `Makefile` — `make convert` regenerates everything
+- `llm-triage/` — two scripts that use Claude to summarize alerts and draft incident timelines
+- `local-lab/` — Wazuh, running locally, because I'm not paying for a Sentinel workspace just to test rule syntax
 
-To reproduce locally: `pipx install sigma-cli && sigma plugin install kusto`, then `make convert` from this directory.
+To run it yourself: `pipx install sigma-cli && sigma plugin install kusto`, then `make convert`.
 
-## What I learned / trade-offs
-The `sentinel_asim` pipeline only auto-resolves the target table for a handful of built-in categories (e.g. `network_connection`) — anything else needs the table set explicitly via pipeline state, or conversion fails with "unable to determine table name." Wrote a custom pipeline (`kql-conversions/pipelines/azuread-table-mappings.yml`) using `set_state` at a lower priority number so it runs before `sentinel_asim`'s own check, covering `SigninLogs`, `AuditLogs`, and `OfficeActivity`. All 8 rules convert and are syntax-validated, but not yet deployed against a live Sentinel workspace — that's the next step once the Azure lab is up (see `sentinel-soar-playbooks` and `terraform-labs`).
+## The pipeline problem
 
-`password-spray.yml` is a good example of Sigma's real limits: a spray attack is defined by *aggregation* (many accounts, one source, short window), and Sigma's single-rule spec has no clean way to express that. The generated `.kql` file documents this — the per-event condition comes from Sigma, the `summarize`/`dcount` aggregation on top is maintained by hand directly in KQL.
+The built-in `sentinel_asim` pipeline that ships with sigma-cli only knows how to map a handful of log categories to their Sentinel table automatically — things like `network_connection`. Anything outside that list and conversion just fails with "unable to determine table name from rule," which took me a minute to figure out wasn't a bug in my rule, it's just that Entra ID sign-in/audit logs aren't in its default list.
 
-`sigma check` hangs indefinitely in this environment (looks like it phones home to attack.mitre.org for tag validation and never returns) — `make convert` is used for validation instead, since it parses every rule as a side effect.
+Fix was a ~15-line pipeline file that sets the table name explicitly before `sentinel_asim` runs its own check — has to run at a lower priority number so it goes first. Covers `SigninLogs`, `AuditLogs`, and `OfficeActivity` now. If I add more rule categories later I'll probably need to extend this again.
 
-## Security note
-No real tenant IDs, subscription IDs, credentials, or organisational log data are committed here. Sample values are placeholders (e.g. `<your-tenant-id>`).
+## Where Sigma actually falls short
 
-## Running a local SIEM for free
-`local-lab/` sets up a self-hosted, open-source Wazuh SIEM in Docker — no Azure subscription needed to have something real running. See `local-lab/README.md`.
+`password-spray.yml` is the one that exposed this: a password spray is defined by *aggregation* — many different accounts failing from one source in a short window — and Sigma's single-rule spec genuinely has no way to express "count distinct X grouped by Y." So the Sigma rule only captures the per-event condition (the failure codes), and the aggregation (`summarize`, `dcount`, the 10-minute bucket) is hand-written directly into the generated KQL file, with a comment explaining why. I don't love that the two files can drift apart if I'm not careful, but I haven't found a cleaner way to do it within plain Sigma.
+
+One annoyance: `sigma check` just hangs forever on my machine — seems to try to validate ATT&CK tags against attack.mitre.org and never comes back. I gave up waiting on it and use `make convert` instead, which parses every rule anyway as a side effect of converting it.
+
+## Honest state of things
+
+All 8 rules convert cleanly and are syntactically valid. None of them have run against a real Sentinel workspace with real sign-in data yet, so "compiles" is not the same claim as "works" — I don't have a tenant with actual traffic to test false-positive rates against. That's the next real milestone, not this one.
+
+No real tenant IDs, subscription IDs, or actual log data anywhere in this repo — everything's a placeholder or synthetic.
 
 ## One-time setup after cloning
 ```bash
-git config core.hooksPath .githooks   # enables the gitleaks secret-scan on commit
+git config core.hooksPath .githooks
 ```
+This turns on a gitleaks scan before every commit. Doesn't catch everything (found that out the hard way — a password string with a `$` in it slipped right past it once), but it's a decent backstop.

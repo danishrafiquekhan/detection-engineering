@@ -2,414 +2,177 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Security Lab Guide</title>
+<title>Security Lab Notes</title>
 <style>
   @page { margin: 2.2cm 2cm; }
-  body {
-    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
-    font-size: 11pt;
-    line-height: 1.55;
-    color: #1a1a1a;
-    max-width: 100%;
-  }
-  h1 { font-size: 22pt; margin-top: 0; }
-  h2 { font-size: 16pt; border-bottom: 2px solid #2b3a55; padding-bottom: 4px; margin-top: 34px; color: #1a2540; }
-  h3 { font-size: 12.5pt; margin-top: 22px; color: #2b3a55; }
-  h4 { font-size: 11pt; margin-top: 16px; }
-  code {
-    background: #f2f3f5; padding: 1px 5px; border-radius: 4px;
-    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9.5pt;
-  }
-  pre {
-    background: #1e2430; color: #e8eaf0; padding: 12px 14px; border-radius: 6px;
-    overflow-x: auto; font-size: 9pt; line-height: 1.5;
-    page-break-inside: avoid;
-  }
+  body { font-family: Georgia, "Times New Roman", serif; font-size: 11pt; line-height: 1.6; color: #202020; }
+  h1 { font-size: 20pt; font-family: -apple-system, Arial, sans-serif; }
+  h2 { font-size: 15pt; font-family: -apple-system, Arial, sans-serif; margin-top: 30px; border-bottom: 1px solid #999; padding-bottom: 3px; }
+  h3 { font-size: 12pt; font-family: -apple-system, Arial, sans-serif; margin-top: 20px; }
+  code { background: #f0f0ee; padding: 1px 4px; border-radius: 3px; font-family: Menlo, monospace; font-size: 9.5pt; }
+  pre { background: #262b33; color: #e6e6e6; padding: 10px 13px; border-radius: 5px; overflow-x: auto; font-size: 9pt; line-height: 1.5; page-break-inside: avoid; }
   pre code { background: none; color: inherit; padding: 0; }
-  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 9.5pt; }
-  th, td { border: 1px solid #d0d3d8; padding: 6px 9px; text-align: left; vertical-align: top; }
-  th { background: #eef1f6; }
-  .cover {
-    height: 24cm; display: flex; flex-direction: column; justify-content: center;
-    page-break-after: always;
-  }
-  .cover h1 { font-size: 34pt; margin-bottom: 6px; color: #1a2540; }
-  .cover .sub { font-size: 14pt; color: #444; margin-bottom: 40px; }
-  .cover .meta { font-size: 10pt; color: #666; }
-  .toc { page-break-after: always; }
-  .toc ol { line-height: 2.1; font-size: 11pt; }
-  .toc ol ol { font-size: 10pt; line-height: 1.8; }
-  .box {
-    border-left: 4px solid #2b3a55; background: #f5f6f8; padding: 10px 14px;
-    margin: 14px 0; font-size: 10pt; page-break-inside: avoid;
-  }
-  .warn { border-left-color: #a33; background: #fbf0f0; }
-  .win { border-left-color: #2a7d46; background: #eef7f0; }
-  .level {
-    display: inline-block; font-size: 9pt; font-weight: bold; padding: 2px 10px;
-    border-radius: 10px; color: white; margin-bottom: 6px;
-  }
-  .l0 { background: #6b7280; }
-  .l1 { background: #2563eb; }
-  .l2 { background: #7c3aed; }
-  .l3 { background: #b91c1c; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9.5pt; font-family: -apple-system, Arial, sans-serif; }
+  th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #eee; }
   .part { page-break-before: always; }
   ul { margin-top: 4px; }
-  a { color: #1d4ed8; }
 </style>
 </head>
 <body>
 
-<div class="cover">
-  <h1>Security Lab Guide</h1>
-  <div class="sub">Zero to Advanced &mdash; Hands-On Detection Engineering, SOAR, and Cloud Security</div>
-  <div class="meta">
-    Personal reference &middot; Danish Khan<br>
-    Built on: Wazuh, TheHive + Cortex, LocalStack, Sigma, Terraform, Suricata<br>
-    Compiled 2026-08-29
-  </div>
-</div>
+<h1>Security lab notes</h1>
+<p><em>Started keeping this because I kept forgetting how I'd fixed the same three Docker/Terraform/Sigma problems the week before. It's not a tutorial, it's just what I actually did and what actually broke.</em></p>
 
-<div class="toc">
-<h2>Contents</h2>
-<ol>
-  <li>How to use this guide</li>
-  <li>Lab map: what you actually have running</li>
-  <li>Part 0 &mdash; Foundations (before touching a keyboard)
-    <ol>
-      <li>What a SIEM actually does</li>
-      <li>What Sigma is, and why it exists</li>
-      <li>MITRE ATT&amp;CK in one page</li>
-      <li>SOAR, and why TheHive/Cortex exist</li>
-      <li>Infrastructure as Code and why Terraform</li>
-    </ol>
-  </li>
-  <li>Part 1 &mdash; Beginner: get everything running and look at it
-    <ol>
-      <li>Starting and stopping the lab</li>
-      <li>Wazuh: first login and orientation</li>
-      <li>Reading your first Sigma rule</li>
-      <li>Converting Sigma to KQL and to Lucene</li>
-      <li>TheHive: create your first case</li>
-      <li>LocalStack: your first AWS CLI commands</li>
-      <li>Terraform: plan and apply your first resource</li>
-    </ol>
-  </li>
-  <li>Part 2 &mdash; Intermediate: make the lab do something
-    <ol>
-      <li>Feed Suricata alerts into Wazuh</li>
-      <li>Write a Wazuh custom rule from scratch</li>
-      <li>Write your own Sigma rule for a new technique</li>
-      <li>Trigger Cortex analysis from a TheHive case</li>
-      <li>Practice IAM detections against LocalStack</li>
-      <li>Terraform: modules and remote state</li>
-    </ol>
-  </li>
-  <li>Part 3 &mdash; Advanced: build a real detection pipeline
-    <ol>
-      <li>End-to-end pipeline: Suricata &rarr; Wazuh &rarr; TheHive &rarr; Cortex</li>
-      <li>Correlation rules and reducing false positives</li>
-      <li>Atomic Red Team validation (safely, in an isolated VM)</li>
-      <li>Detection-as-code: CI validation with GitHub Actions</li>
-      <li>Threat hunting with the Wazuh/OpenSearch query DSL</li>
-      <li>Where to go from here</li>
-    </ol>
-  </li>
-  <li>Reference
-    <ol>
-      <li>Command cheat sheet</li>
-      <li>Troubleshooting log (real problems hit in this exact lab)</li>
-      <li>Security checklist</li>
-      <li>Repo map</li>
-      <li>Further reading</li>
-    </ol>
-  </li>
-</ol>
-</div>
-
-<h2>1. How to use this guide</h2>
-<p>This isn't a book to read start to finish. It's a lab manual. Each numbered section under Parts 1&ndash;3 is a hands-on exercise against services that are <em>already running</em> on your Mac right now &mdash; not simulations, not theory. Do them in order the first time through; after that, jump to whatever you're weak on.</p>
-<div class="box">
-<strong>Ground rule:</strong> every exercise here runs against your own local Docker containers or a free-tier cloud account you control. Nothing here touches a real employer's systems, and nothing here should ever be pointed at one.
-</div>
-
-<h2>2. Lab map: what you actually have running</h2>
-<table>
-<tr><th>Component</th><th>Role</th><th>URL / access</th><th>Where it lives</th></tr>
-<tr><td>Wazuh</td><td>Open-source SIEM/XDR</td><td>https://localhost (dashboard)<br>https://localhost:9200 (indexer API)</td><td><code>~/securitylab/wazuh-docker</code></td></tr>
-<tr><td>TheHive</td><td>Case/alert management (SOAR)</td><td>http://localhost:9000</td><td><code>~/securitylab/thehive</code></td></tr>
-<tr><td>Cortex</td><td>Automated analyzers (the "playbook" engine)</td><td>http://localhost:9001</td><td><code>~/securitylab/thehive</code></td></tr>
-<tr><td>LocalStack</td><td>Open-source AWS API emulator</td><td>http://localhost:4566</td><td><code>~/securitylab/localstack</code></td></tr>
-<tr><td>Suricata</td><td>Network intrusion detection (NIDS)</td><td>log files, no UI</td><td><code>~/securitylab/suricata</code></td></tr>
-<tr><td>sigma-cli</td><td>Converts vendor-agnostic detection rules to KQL / Lucene</td><td>terminal (<code>sigma</code> command)</td><td>installed via pipx</td></tr>
-<tr><td>gitleaks</td><td>Blocks secrets before they're committed</td><td>runs automatically on <code>git commit</code></td><td>every repo's <code>.githooks/</code></td></tr>
-<tr><td>Terraform</td><td>Infrastructure as code (Azure)</td><td>terminal (<code>terraform</code> command)</td><td><code>~/security-portfolio/terraform-labs</code></td></tr>
-</table>
-<p>Your portfolio repos live in <code>~/security-portfolio/</code>, each one cloned from GitHub (<code>danishrafiquekhan/&lt;repo&gt;</code>). Everything you build in this lab eventually gets written up and committed there &mdash; that's the whole point of the exercise: not just to learn, but to leave evidence of learning.</p>
+<p>What's running right now, on my own Mac: Wazuh (self-hosted SIEM), TheHive + Cortex (SOAR), LocalStack (fake AWS), Suricata (already had this one), sigma-cli, gitleaks, Terraform. All free, all local except for the Sigma → KQL output which is meant for a real Sentinel workspace eventually.</p>
 
 <div class="part"></div>
-<h2>3. Part 0 &mdash; Foundations</h2>
+<h2>Why bother with a local lab at all</h2>
 
-<div class="level l0">LEVEL 0</div>
-<h3>3.1 What a SIEM actually does</h3>
-<p>A SIEM (Security Information and Event Management system) does three jobs: <strong>collect</strong> logs from many sources into one place, <strong>normalize</strong> them into a common shape so different log formats become comparable, and <strong>search/alert</strong> on patterns across that normalized data. Wazuh does all three: agents (or direct log shipping) collect events, its "decoders" normalize them, and its "rules" (XML files) alert when a pattern matches. Microsoft Sentinel does the same three jobs, just as a paid cloud service with KQL instead of Wazuh's XML rule syntax and OpenSearch storage.</p>
-<p>The reason detection engineers write rules against a normalized schema (Sentinel calls this ASIM &mdash; Advanced Security Information Model) rather than raw logs is portability: one logical rule ("a sign-in from two impossible locations close in time") can be expressed once and applied to any log source that's been normalized into the same shape.</p>
+<p>A SIEM does three things really: pulls logs in from wherever they live, normalizes them into something you can actually compare across sources, and lets you search/alert on patterns in that normalized data. Sentinel does this as a paid cloud service with KQL. Wazuh does the same three things for free, with its own XML rule format and OpenSearch underneath instead. The actual concept transfers fine between them — the syntax doesn't.</p>
 
-<h3>3.2 What Sigma is, and why it exists</h3>
-<p>Sigma is a generic, YAML-based rule format for log-based detection &mdash; the "write once" layer above vendor-specific query languages. You write a Sigma rule describing a pattern (a log source, a set of field/value conditions, and metadata like the ATT&CK technique it detects), and a converter (<code>sigma-cli</code>, which you already have installed) turns it into a real query for whatever backend you're running: KQL for Sentinel, Lucene for OpenSearch/Elasticsearch, SPL for Splunk, and so on.</p>
-<div class="box">This is why <code>detection-engineering/sigma-rules/*.yml</code> in your portfolio is the valuable artifact, not the generated <code>.kql</code> file &mdash; the Sigma rule is the actual detection logic; the KQL is just one compiled target of it.</div>
+<p>Sigma exists because writing the same detection logic three times for three different query languages is a waste of time. Write the pattern once in Sigma's YAML format, then a converter turns it into KQL, or Lucene, or SPL, or whatever. The Sigma file is the actual asset — the KQL is just one compiled output of it, which is why I keep both in the repo rather than just the KQL.</p>
 
-<h3>3.3 MITRE ATT&amp;CK in one page</h3>
-<p>ATT&amp;CK is a public knowledge base of attacker behaviour, organized as: <strong>Tactics</strong> (the attacker's goal, e.g. "Initial Access") each containing several <strong>Techniques</strong> (how they achieve it, e.g. T1078 "Valid Accounts") which may have <strong>Sub-techniques</strong> (T1078.004 "Cloud Accounts" specifically). Every rule you write should be tagged with the technique it detects (see the <code>tags:</code> field in your Sigma rules) &mdash; this is what lets you build the <code>attack-mapping.csv</code> table showing coverage, and it's the shared vocabulary interviewers expect you to speak.</p>
+<p>ATT&CK is just a shared vocabulary for attacker behaviour — tactics (the goal), techniques (how), sometimes sub-techniques (the specific variant). Every rule I write gets tagged with the technique it's supposed to catch. That's also literally what interviewers ask about, so it's not optional to learn this part.</p>
 
-<h3>3.4 SOAR, and why TheHive/Cortex exist</h3>
-<p>A SIEM tells you something happened. A SOAR (Security Orchestration, Automation and Response) platform is where a human (or automation) then <em>does something about it</em>: opens a case, enriches it with context (is this IP known-bad? has this user done this before?), and takes action (disable the account, block the IP). TheHive is the case-management half; Cortex is the automation/enrichment half &mdash; a Cortex "analyzer" is the open-source equivalent of a single step in a Sentinel Logic App playbook.</p>
+<p>SOAR is the "now do something about it" layer that sits after the SIEM tells you something happened. TheHive is the case-management half, Cortex is the automation half — a Cortex analyzer is roughly the open-source version of one step in a Sentinel playbook.</p>
 
-<h3>3.5 Infrastructure as Code, and why Terraform</h3>
-<p>Instead of clicking through a cloud portal to create resources (which isn't repeatable, reviewable, or version-controlled), you write a declarative description of the desired state (<code>.tf</code> files) and a tool reconciles reality to match it. <code>terraform plan</code> shows you the diff before anything changes; <code>terraform apply</code> executes it; <code>terraform destroy</code> tears it back down. This matters for a security role specifically because most real security infrastructure (Sentinel workspaces, log pipelines, detection rules) is deployed this way in mature teams &mdash; "detection as code."</p>
+<p>Terraform: instead of clicking through the Azure portal (not repeatable, not reviewable, no history), you write down what you want and a tool reconciles reality to match it. `plan` shows the diff before anything happens, `apply` does it, `destroy` undoes it. Most mature security teams deploy their actual detection infrastructure this way now — "detection as code" isn't just a buzzword on a job posting, apparently.</p>
 
 <div class="part"></div>
-<h2>4. Part 1 &mdash; Beginner: get everything running and look at it</h2>
+<h2>Getting everything running</h2>
 
-<div class="level l1">LEVEL 1</div>
-<h3>4.1 Starting and stopping the lab</h3>
-<p>You don't need every stack running all the time &mdash; they use real CPU/RAM/disk. Start only what you're using:</p>
-<pre><code>cd ~/securitylab/wazuh-docker/single-node && docker compose up -d    # SIEM
-cd ~/securitylab/thehive                  && docker compose up -d    # SOAR
-cd ~/securitylab/localstack               && docker compose up -d    # AWS emulator
-cd ~/securitylab/suricata                 && docker compose up -d    # NIDS
+<pre><code>cd ~/securitylab/wazuh-docker/single-node && docker compose up -d
+cd ~/securitylab/thehive                  && docker compose up -d
+cd ~/securitylab/localstack               && docker compose up -d
+cd ~/securitylab/suricata                 && docker compose up -d
 
-# stop (keeps data), from any of the same folders:
-docker compose stop
-
-# fully remove containers (data in named volumes survives):
-docker compose down
-
-# check what's running right now:
+docker compose stop   # keeps data
+docker compose down   # removes containers, keeps volumes
 docker ps
-</code></pre>
-<div class="box warn"><strong>Watch your disk.</strong> These stacks together can use 10&ndash;15GB. Run <code>df -h /</code> periodically; if it's tight, stop stacks you're not actively using, or <code>docker system prune</code> to reclaim unused image layers.</div>
+docker system prune   # if disk gets tight</code></pre>
 
-<h3>4.2 Wazuh: first login and orientation</h3>
-<ol>
-<li>Open <a href="https://localhost">https://localhost</a> (accept the self-signed cert warning &mdash; it's your own local CA, not a real security risk on localhost).</li>
-<li>Log in with <code>admin</code> / <code>SecretPassword</code> &mdash; then immediately go to your user menu and change it. This default is published in Wazuh's own docs; leaving it is the one genuinely bad habit this lab could teach you.</li>
-<li>Look at the left-hand menu: <strong>Threat Hunting</strong> (search all indexed alerts), <strong>Security Events</strong>, <strong>Integrity Monitoring</strong>, <strong>Vulnerability Detection</strong>. Right now these are mostly empty &mdash; you haven't fed it any agent data yet. That's Part 2.</li>
-<li>Try the search bar in Threat Hunting with a wildcard query <code>*</code> to see the manager's own internal events (it monitors itself) &mdash; this proves the pipeline (manager &rarr; indexer &rarr; dashboard) works end to end before you add real log sources.</li>
-</ol>
+<p>Don't run everything at once unless you're actually using all of it — these stacks together ate through about 25GB of disk the first time I brought them all up, mostly because none of Wazuh/TheHive/Cortex have arm64 builds yet so they're all running under x86 emulation on my Mac. Slower to start than you'd expect, not actually broken.</p>
 
-<h3>4.3 Reading your first Sigma rule</h3>
-<p>Open <code>~/security-portfolio/detection-engineering/sigma-rules/impossible-travel.yml</code>. Read it top to bottom:</p>
-<ul>
-<li><code>logsource</code> &mdash; what kind of log this rule expects (category/product/service)</li>
-<li><code>detection.selection</code> &mdash; the actual condition(s), as field/value pairs</li>
-<li><code>detection.condition</code> &mdash; how the named blocks combine (here, just <code>selection</code> alone)</li>
-<li><code>falsepositives</code> &mdash; be honest here; every real rule has some</li>
-<li><code>level</code> &mdash; severity, used for triage priority</li>
-</ul>
+<h3>Wazuh — first login</h3>
+<p>https://localhost, accept the self-signed cert warning (it's my own local CA, not an actual risk on localhost). Default login is admin/SecretPassword — change it immediately, it's published in their own docs so leaving it is the one genuinely bad habit this setup could teach. Threat Hunting and the other views are empty until there's a real log source feeding in, which there isn't yet — Suricata is the obvious next thing to wire in.</p>
 
-<h3>4.4 Converting Sigma to KQL and to Lucene</h3>
+<h3>Reading a Sigma rule</h3>
+<p>Structure's straightforward: <code>logsource</code> says what kind of log it expects, <code>detection.selection</code> is the actual condition, <code>detection.condition</code> says how multiple named blocks combine, <code>falsepositives</code> is where I try to be honest about what else might trigger it, <code>level</code> is severity.</p>
+
 <pre><code>cd ~/security-portfolio/detection-engineering
 export PATH="$HOME/.local/bin:$PATH"
-
-# regenerate every KQL query from the Sigma sources
 make convert
 cat kql-conversions/generated/impossible-travel.kql</code></pre>
-<p>Try converting a rule to a different backend yourself, to see the same logic expressed differently:</p>
-<pre><code>sigma convert -t opensearch_lucene -p ecs_windows sigma-rules/impossible-travel.yml</code></pre>
-<div class="box">If that errors about a missing table/pipeline mapping, that's expected and instructive &mdash; see &sect;9.2 (Troubleshooting) for exactly why, and read the "What I learned" section in <code>detection-engineering/README.md</code>, which documents the real fix used for the KQL conversion.</div>
 
-<h3>4.5 TheHive: create your first case</h3>
-<ol>
-<li>Open <a href="http://localhost:9000">http://localhost:9000</a>. First run walks you through creating the initial organisation and admin account &mdash; there's no default login, by design.</li>
-<li>Create a case manually: <strong>Cases &rarr; New Case</strong>. Title it something like "Suspicious sign-in &mdash; T1078.004 (practice)". Add a description, severity, and a tag matching the ATT&CK technique.</li>
-<li>Add an <strong>Observable</strong> to the case (e.g. an IP address, even a fake one like <code>198.51.100.23</code> &mdash; a real reserved-for-documentation range). This is the object Cortex will later enrich.</li>
-</ol>
+<h3>TheHive — first case</h3>
+<p>http://localhost:9000. First run makes you set up the org and admin account yourself, no default login, which I appreciate even though it's one more step. Create a case, add an observable (even a fake IP from the 198.51.100.0/24 documentation range works fine for testing), that's the object Cortex would enrich once it's linked up.</p>
 
-<h3>4.6 LocalStack: your first AWS CLI commands</h3>
+<h3>LocalStack — first commands</h3>
 <pre><code>export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 export AWS_DEFAULT_REGION=us-east-1
 
 aws --endpoint-url=http://localhost:4566 s3 mb s3://my-lab-bucket
-aws --endpoint-url=http://localhost:4566 s3 ls
-aws --endpoint-url=http://localhost:4566 iam create-user --user-name lab-user
-aws --endpoint-url=http://localhost:4566 iam list-users</code></pre>
-<p>Tip: put the endpoint and fake credentials in a shell alias or a <code>.envrc</code> so you're not retyping them every time.</p>
+aws --endpoint-url=http://localhost:4566 iam create-user --user-name lab-user</code></pre>
 
-<h3>4.7 Terraform: plan and apply your first resource</h3>
+<h3>Terraform — first apply</h3>
 <pre><code>cd ~/security-portfolio/terraform-labs/01-first-resource-group
-az login                                   # opens a browser to authenticate
-az account list --output table             # confirm you're on your free-tier subscription
-cp terraform.tfvars.example terraform.tfvars
-# edit terraform.tfvars: put your real subscription ID in
-
+az login
+cp terraform.tfvars.example terraform.tfvars   # fill in your subscription id
 terraform init
-terraform plan                             # read this output carefully before apply
-terraform apply                            # type "yes" when prompted
-# ... when done exploring:
+terraform plan
+terraform apply
 terraform destroy</code></pre>
-<div class="box warn">Set a spending cap on the Azure subscription <em>before</em> running <code>apply</code> &mdash; see the Security Checklist (&sect;9.3).</div>
+<p>Set the Azure spending cap before apply, not after. Wrote this down because it's exactly the kind of step I'd otherwise skip in the moment.</p>
 
 <div class="part"></div>
-<h2>5. Part 2 &mdash; Intermediate: make the lab do something</h2>
+<h2>Making the lab actually do something</h2>
 
-<div class="level l2">LEVEL 2</div>
-<h3>5.1 Feed Suricata alerts into Wazuh</h3>
-<p>Right now Suricata and Wazuh run independently. Wiring them together is the first real "pipeline" exercise:</p>
-<ol>
-<li>Confirm Suricata is writing alerts: <code>cd ~/securitylab/suricata && docker compose up -d</code>, then check <code>suricata/logs/eve.json</code> is growing.</li>
-<li>Wazuh natively understands Suricata's <code>eve.json</code> format. Add a <code>&lt;localfile&gt;</code> block to the Wazuh manager's <code>ossec.conf</code> pointing at that file, or mount the Suricata logs volume into the Wazuh manager container so it can read them directly.</li>
-<li>Restart the manager, generate a test alert (Suricata ships example rules that fire on benign traffic like ICMP ping), and confirm it shows up in Wazuh's <strong>Threat Hunting</strong> view.</li>
-</ol>
-<p>This is genuinely fiddly the first time &mdash; expect to spend real time on file paths and container networking. That struggle is the learning.</p>
+<h3>Suricata into Wazuh</h3>
+<p>Right now these run independently. Wiring them together: confirm Suricata's writing to <code>eve.json</code>, point a <code>&lt;localfile&gt;</code> block in Wazuh's <code>ossec.conf</code> at it (or mount the log volume into the manager container), restart the manager, check Threat Hunting for the test alert. This one's genuinely fiddly the first time — expect to burn real time on file paths and container networking before it clicks.</p>
 
-<h3>5.2 Write a Wazuh custom rule from scratch</h3>
-<p>Wazuh rules are XML, not Sigma (Sigma isn't a natural fit for host/network telemetry the way it is for cloud logs &mdash; see <code>detection-engineering/local-lab/README.md</code> for why). A minimal custom rule, added to <code>/var/ossec/etc/rules/local_rules.xml</code> inside the manager container:</p>
+<h3>A custom Wazuh rule</h3>
 <pre><code>&lt;group name="local,suricata,"&gt;
   &lt;rule id="100010" level="10"&gt;
-    &lt;if_sid&gt;86601&lt;/if_sid&gt;  &lt;!-- base Suricata alert rule --&gt;
+    &lt;if_sid&gt;86601&lt;/if_sid&gt;
     &lt;field name="alert.severity"&gt;1&lt;/field&gt;
-    &lt;description&gt;High-severity Suricata alert detected&lt;/description&gt;
+    &lt;description&gt;High-severity Suricata alert&lt;/description&gt;
   &lt;/rule&gt;
 &lt;/group&gt;</code></pre>
-<p>Restart the manager after editing rules (<code>docker exec &lt;container&gt; /var/ossec/bin/wazuh-control restart</code>) and confirm the new rule ID appears when a matching event comes through.</p>
+<p>Wazuh uses XML, not Sigma, for its own rules — Sigma just isn't a great fit for host/network telemetry the way it is for cloud logs, so I didn't force it.</p>
 
-<h3>5.3 Write your own Sigma rule for a new technique</h3>
-<p>Pick an ATT&amp;CK technique not yet covered (check <code>attack-mapping.csv</code>). Good next candidates for the Azure-AD-signin logsource you already have working: <strong>T1110</strong> (Brute Force &mdash; repeated failed sign-ins from one source), or <strong>T1098</strong> (Account Manipulation &mdash; new MFA method registered). Write the YAML, run it through <code>sigma check</code> to validate syntax, then <code>make convert</code>.</p>
+<h3>New Sigma rules</h3>
+<p>Good next candidates from the sign-in logsource I already have working: T1110 brute force (repeated failed sign-ins, one source), T1098 account manipulation (new MFA method registered). Write it, run it through <code>make convert</code>, check the output looks right.</p>
 
-<h3>5.4 Trigger Cortex analysis from a TheHive case</h3>
-<p>Link Cortex to TheHive (one-time): in TheHive's admin settings, add Cortex as a "Responder/Analyzer" server using Cortex's URL (<code>http://cortex:9001</code> from inside the Docker network) and an API key generated in Cortex's UI (<strong>Organization &rarr; API Keys</strong>). Once linked, open the observable you added in &sect;4.5 and run an available analyzer against it. Community-edition analyzers that need no external API key are limited, but this proves the automation wiring works &mdash; the same mechanism a paid analyzer (e.g. VirusTotal, needs your own free API key) would use.</p>
+<h3>Linking Cortex to TheHive</h3>
+<p>One-time: TheHive admin settings, add Cortex as an analyzer server (<code>http://cortex:9001</code> inside the Docker network), API key from Cortex's own UI. Once linked, run an analyzer against an observable. Free-tier analyzers that need no external API key are limited, but it proves the wiring works.</p>
 
-<h3>5.5 Practice IAM detections against LocalStack</h3>
-<p>Simulate a plausible attack pattern and think about how you'd detect it:</p>
+<h3>IAM attack pattern against LocalStack</h3>
 <pre><code>aws --endpoint-url=http://localhost:4566 iam create-user --user-name shadow-admin
 aws --endpoint-url=http://localhost:4566 iam attach-user-policy \
   --user-name shadow-admin --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 aws --endpoint-url=http://localhost:4566 iam create-access-key --user-name shadow-admin</code></pre>
-<p>That sequence &mdash; create user, immediately attach full-admin policy, immediately mint an access key &mdash; is a real, well-known privilege-escalation/persistence pattern. Write up (in <code>aws-identity-detection/</code>) what a CloudTrail-based Sigma rule for this sequence would look for, even though you can't fire it against real CloudTrail in the free tier (see &sect;9.2).</p>
+<p>Create user, immediately grant admin, immediately mint a key — real privilege-escalation pattern, well documented in the wild. Wrote up what a CloudTrail detection for this would look like even though I can't fire it against real CloudTrail on the free tier (LocalStack Community doesn't emit that log format).</p>
 
-<h3>5.6 Terraform: modules and remote state</h3>
-<p>Move on to <code>terraform-labs/02-remote-state-azure-backend</code> and <code>03-modules-networking-compute</code>. The core new idea in each: state (what Terraform thinks exists) should live somewhere shared and locked (an Azure Storage blob, not your laptop disk) once more than one person or machine touches it; and repeated infrastructure patterns belong in a reusable module rather than copy-pasted resource blocks.</p>
-
-<div class="part"></div>
-<h2>6. Part 3 &mdash; Advanced: build a real detection pipeline</h2>
-
-<div class="level l3">LEVEL 3</div>
-<h3>6.1 End-to-end pipeline: Suricata &rarr; Wazuh &rarr; TheHive &rarr; Cortex</h3>
-<p>This is the capstone exercise that ties every piece in this lab together, and the strongest single thing you can describe in an interview:</p>
-<ol>
-<li>Suricata detects network-level badness and writes to <code>eve.json</code> (from &sect;5.1).</li>
-<li>Wazuh ingests it, and your custom rule (&sect;5.2) fires an alert above a severity threshold.</li>
-<li>Configure Wazuh's <strong>active response</strong> or a simple script to POST that alert to TheHive's API, auto-creating a case (TheHive's REST API: <code>POST /api/v1/case</code>).</li>
-<li>Cortex automatically enriches the new case's observables (the source IP, say) the moment it's created, via a pre-configured responder.</li>
-</ol>
-<p>You will hit real integration friction here (auth tokens, API payload shapes, container-to-container networking). Document each obstacle and fix in the relevant repo's README, in the same style as the existing "What I learned" sections &mdash; that documentation <em>is</em> the portfolio artifact, arguably more than the pipeline itself.</p>
-
-<h3>6.2 Correlation rules and reducing false positives</h3>
-<p>A single-event rule (like both current Sigma rules) fires on one log line. A correlation rule fires on a <em>pattern across multiple events over time</em> &mdash; true "impossible travel" (same user, two countries, N minutes apart) needs this. Sigma's newer spec supports <code>correlation</code> rule types (temporal proximity, value counts); Wazuh supports this natively via its own <code>&lt;frequency&gt;</code>/<code>&lt;timeframe&gt;</code> rule options. Rewriting <code>impossible-travel.yml</code> as a genuine correlation rule (rather than today's proxy &mdash; alerting on Identity Protection's own risk flag) is the single best "advanced" upgrade available in this repo.</p>
-
-<h3>6.3 Atomic Red Team validation (safely, in an isolated VM)</h3>
-<p>Follow <code>atomic-red-team-validation/LAB-SETUP.md</code> exactly &mdash; UTM, NAT-only networking, snapshot before every session, never on this Mac directly. Once the Windows VM is built: run a test for a technique you have a detection for (T1078.004 is the one already scaffolded), and check whether your rule actually fires on the resulting telemetry. This is where "I wrote a detection" becomes "I proved a detection works," which is the entire point of the <code>atomic-red-team-validation</code> repo.</p>
-
-<h3>6.4 Detection-as-code: CI validation with GitHub Actions</h3>
-<p>Add a workflow to <code>detection-engineering/.github/workflows/validate.yml</code> that runs <code>sigma check</code> (and ideally <code>make convert</code>) on every push, so a syntactically broken rule can never merge silently. This is the specific "detection as code" signal the original study plan called out as a differentiator &mdash; small to add, meaningfully raises the bar of the repo.</p>
-
-<h3>6.5 Threat hunting with the Wazuh/OpenSearch query DSL</h3>
-<p>Once you have real data flowing (from &sect;5.1/6.1), practice hunting rather than just waiting for alerts: use Wazuh's Threat Hunting search with Lucene query syntax (<code>rule.level:&gt;=10 AND data.srcip:*</code>) or drop into the raw OpenSearch API directly:</p>
-<pre><code>curl -sk -u admin:&lt;your-new-password&gt; \
-  "https://localhost:9200/wazuh-alerts-*/_search?pretty" \
-  -H 'Content-Type: application/json' -d '{
-    "query": { "range": { "rule.level": { "gte": 10 } } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'</code></pre>
-
-<h3>6.6 Where to go from here</h3>
-<ul>
-<li>Add a real free-tier <strong>Azure AD tenant</strong> (separate from any work account) so the Sentinel/KQL rules can eventually run against real (your own) sign-in data, not just convert cleanly.</li>
-<li>Look at <strong>Shuffle</strong> (open-source, also free) as a second SOAR option alongside TheHive/Cortex &mdash; different UX, same underlying idea, worth knowing both since job postings vary.</li>
-<li>Revisit <code>intune-endpoint-health-platform</code> &mdash; migrate your existing, already-built project into the portfolio repo; it's real production-adjacent work and shouldn't be the least-developed repo.</li>
-</ul>
+<h3>Terraform modules and remote state</h3>
+<p>The core idea once you're past a single resource: state shouldn't live on one laptop once more than one thing touches it (put it in an Azure Storage blob, locked), and repeated patterns belong in a module instead of copy-pasted blocks.</p>
 
 <div class="part"></div>
-<h2>9. Reference</h2>
+<h2>Where I want to take this next</h2>
 
-<h3>9.1 Command cheat sheet</h3>
-<pre><code># --- Docker stacks ---
-docker compose up -d          # start (from the stack's own folder)
-docker compose stop           # stop, keep data
-docker compose down           # remove containers, keep named volumes
-docker ps                     # what's running
-docker stats --no-stream      # resource usage snapshot
-docker system prune           # reclaim disk from unused layers
+<p>The real capstone here is wiring the whole chain together — Suricata detects something, Wazuh alerts on it, that alert creates a TheHive case automatically (their REST API supports this), Cortex enriches it the moment it's created. I expect to hit real friction on auth tokens and container networking doing this, and I'm planning to write down each thing that breaks as I go, the same way I've been doing for everything else here.</p>
 
-# --- Sigma ---
+<p>Also want to actually turn the impossible-travel rule into a real correlation rule instead of the proxy version I have now (which just alerts on Identity Protection's own risk flag rather than computing the travel-distance logic itself). Sigma's correlation spec or Wazuh's own frequency/timeframe rule options can both do this — haven't picked which yet.</p>
+
+<p>Atomic Red Team validation is blocked on me actually building the Windows VM in UTM — deliberately not automated, it's a multi-GB download with a EULA I want to read myself. Once it's up: run a test for T1078.004, check whether the rule I already wrote actually fires.</p>
+
+<p>Adding a GitHub Actions workflow that runs <code>sigma check</code>/<code>make convert</code> on every push so a broken rule can't merge silently — small thing, but it's the specific "detection as code" signal a few of the postings I'm looking at called out directly.</p>
+
+<div class="part"></div>
+<h2>Commands I keep forgetting</h2>
+<pre><code># docker
+docker compose up -d / stop / down
+docker stats --no-stream
+docker system prune
+
+# sigma
 export PATH="$HOME/.local/bin:$PATH"
-sigma check sigma-rules/*.yml
-sigma convert -t kusto -p kql-conversions/pipelines/signinlogs-table.yml -p sentinel_asim RULE.yml
-make convert                  # regenerate all KQL from Sigma sources
+sigma convert -t kusto -p kql-conversions/pipelines/azuread-table-mappings.yml -p sentinel_asim RULE.yml
+make convert
 
-# --- Terraform ---
+# terraform
 az login
-terraform init
-terraform plan
-terraform apply
-terraform destroy
+terraform init / plan / apply / destroy
 
-# --- LocalStack / AWS CLI ---
+# localstack
 export AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=us-east-1
-aws --endpoint-url=http://localhost:4566 &lt;any aws command&gt;
+aws --endpoint-url=http://localhost:4566 &lt;command&gt;
 
-# --- git / gitleaks ---
-git config core.hooksPath .githooks    # one-time, per clone
-git commit -m "..."                    # gitleaks runs automatically, blocks on secrets
+# git
+git config core.hooksPath .githooks
 </code></pre>
 
-<h3>9.2 Troubleshooting log (real problems hit in this exact lab)</h3>
+<h2>Actual problems I hit (keeping this list honest and specific)</h2>
 <table>
-<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
-<tr><td>sigma convert: "Unable to determine table name from rule"</td><td>The <code>sentinel_asim</code> pipeline only auto-maps a few built-in categories (e.g. <code>network_connection</code>); <code>authentication</code>/<code>signinlogs</code> isn't one</td><td>Custom pipeline YAML using <code>set_state</code> to set <code>query_table: SigninLogs</code>, at a <em>lower</em> priority number than <code>sentinel_asim</code> so it runs first &mdash; see <code>kql-conversions/pipelines/signinlogs-table.yml</code></td></tr>
-<tr><td>Wazuh cert generator: "Permission denied" on <code>root-ca-manager.pem</code></td><td>The generator chmods its output directory read-only partway through, before writing the manager-cluster cert pair</td><td><code>chmod 755</code> the certs directory, then manually copy <code>root-ca.pem/key</code> to <code>root-ca-manager.pem/key</code> &mdash; scripted in <code>setup-wazuh.sh</code></td></tr>
-<tr><td>TheHive container exits immediately: "application secret has not been set"</td><td><code>--no-config-secret</code> doesn't disable the check in prod mode, despite the name</td><td>Generate a real secret (<code>openssl rand -hex 32</code>), pass via <code>.env</code> + <code>--secret</code>, never hardcode it</td></tr>
-<tr><td>LocalStack: CloudTrail service not listed / not usable</td><td>CloudTrail emulation is a Pro-only (paid) LocalStack feature</td><td>None available for free &mdash; practice IAM/S3/STS-based detections instead, or use a real AWS free-tier account for actual CloudTrail</td></tr>
-<tr><td>gitleaks didn't catch an obviously secret-looking string</td><td>The default <code>generic-api-key</code> rule matches secret values against a fixed character set; some symbols (e.g. <code>$</code>) fall outside it</td><td>Don't treat the hook as a guarantee &mdash; it's a backstop. The real control is never writing real credentials to a file in the first place (env vars, CLI login flows)</td></tr>
-<tr><td>Wazuh/TheHive/Cortex all pull "linux/amd64" images on Apple Silicon</td><td>These projects don't yet publish arm64 builds</td><td>They run correctly under Docker's x86 emulation, just slower to start &mdash; budget extra time, don't assume a stuck-looking container is broken</td></tr>
+<tr><th>What happened</th><th>Why</th><th>What fixed it</th></tr>
+<tr><td>sigma convert: "unable to determine table name"</td><td><code>sentinel_asim</code> only auto-maps a handful of built-in categories, not Entra ID sign-in/audit logs</td><td>Wrote a small pipeline setting <code>query_table</code> explicitly, at a lower priority so it runs first</td></tr>
+<tr><td>Wazuh cert generator: permission denied on root-ca-manager.pem</td><td>It locks its own output directory read-only before finishing those two files</td><td>chmod the dir back open, copy root-ca.pem/key to the manager names by hand</td></tr>
+<tr><td>TheHive container exits immediately, "application secret not set"</td><td><code>--no-config-secret</code> doesn't actually disable the check despite the name</td><td>Generate a real secret, pass via .env + --secret</td></tr>
+<tr><td>LocalStack: no CloudTrail</td><td>It's a Pro-only feature</td><td>Nothing free — practice IAM/S3/STS instead, or use a real free-tier AWS account</td></tr>
+<tr><td>gitleaks missed an obvious secret</td><td>Its generic-key rule matches a fixed character set for the value; a <code>$</code> broke the match</td><td>Don't trust it as a guarantee — the real control is never writing real creds to a file to begin with</td></tr>
 </table>
 
-<h3>9.3 Security checklist</h3>
+<h2>Before I forget</h2>
 <ul>
-<li>2FA enabled on GitHub (and every cloud account you create for this lab)</li>
-<li>Azure/AWS: spending alert/budget cap set <em>before</em> creating any resource</li>
-<li>Terraform auth always via <code>az login</code>'s short-lived token &mdash; never a long-lived key committed anywhere</li>
-<li><code>git config core.hooksPath .githooks</code> run on every fresh clone (gitleaks doesn't activate on its own)</li>
-<li>Atomic Red Team: VM only, NAT/host-only networking, never bridged, snapshot before every session</li>
-<li>All screenshots/log excerpts sanitised (device names, usernames, IPs) before committing</li>
-<li>Change Wazuh's default dashboard password on first login</li>
-<li>Run <code>terraform destroy</code> when done with an exercise so nothing keeps costing money unattended</li>
-</ul>
-
-<h3>9.4 Repo map</h3>
-<table>
-<tr><th>Repo</th><th>What lives here</th></tr>
-<tr><td><code>detection-engineering</code></td><td>Sigma rules, KQL conversions, ATT&amp;CK mapping, Wazuh local-lab setup</td></tr>
-<tr><td><code>atomic-red-team-validation</code></td><td>Attack simulation case studies, VM safety setup</td></tr>
-<tr><td><code>sentinel-soar-playbooks</code></td><td>Sentinel Logic App playbooks, TheHive/Cortex local-lab setup</td></tr>
-<tr><td><code>aws-identity-detection</code></td><td>CloudTrail/IAM detections, LocalStack local-lab setup</td></tr>
-<tr><td><code>intune-endpoint-health-platform</code></td><td>Existing Intune project (to be migrated in)</td></tr>
-<tr><td><code>terraform-labs</code></td><td>Terraform Associate study exercises on Azure</td></tr>
-<tr><td><code>danishrafiquekhan</code></td><td>GitHub profile README</td></tr>
-</table>
-
-<h3>9.5 Further reading</h3>
-<ul>
-<li>Sigma rule specification &amp; SigmaHQ public rule repository &mdash; github.com/SigmaHQ</li>
-<li>MITRE ATT&amp;CK &mdash; attack.mitre.org</li>
-<li>Wazuh documentation &mdash; documentation.wazuh.com</li>
-<li>TheHive/Cortex documentation &mdash; docs.strangebee.com</li>
-<li>LocalStack documentation &mdash; docs.localstack.cloud</li>
-<li>Terraform Associate exam guide &mdash; developer.hashicorp.com/terraform/tutorials/certification-003</li>
-<li>Atomic Red Team &mdash; github.com/redcanaryco/atomic-red-team</li>
+<li>2FA everywhere — GitHub, any cloud account I make for this</li>
+<li>Spending cap set before creating anything on Azure/AWS</li>
+<li>Terraform auth through az login only, never a long-lived key</li>
+<li><code>git config core.hooksPath .githooks</code> on every fresh clone — doesn't happen automatically</li>
+<li>Atomic Red Team: VM only, NAT networking, never bridged, snapshot before every session</li>
+<li>Sanitise screenshots/logs before committing anything</li>
+<li>Change Wazuh's default password</li>
+<li><code>terraform destroy</code> when I'm done, so nothing keeps running</li>
 </ul>
 
 </body>

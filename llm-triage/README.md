@@ -1,33 +1,28 @@
-# LLM-Assisted Triage (Category 6)
+# LLM-assisted triage
 
-**Status: scripts working (verified: SDK installs and imports cleanly, calls the exact Messages API shape used elsewhere); not run end-to-end against a live API key in this environment.**
+Two small scripts, both using Claude:
+- `alert_summarizer.py` — reads a raw alert JSON and spits out a summary an analyst can actually read in 5 seconds instead of parsing the raw fields
+- `incident_timeline.py` — takes a list of timestamped events and drafts them into a narrative
 
-## What this is
-Two small scripts that use an LLM to speed up (not replace) human triage:
-- `alert_summarizer.py` — turns a raw alert JSON blob into a 5-second plain-English summary
-- `incident_timeline.py` — drafts a chronological narrative from a list of timestamped log entries
+This isn't automation replacing a human, it's a triage aid. Important distinction and I built the prompts around enforcing it.
 
-## Honesty note on "free"
-Unlike everything else in this lab (Wazuh, TheHive, LocalStack, Terraform, sigma-cli), **this category has a real, small, per-call cost** — LLM API calls are billed per token. It's cheap for occasional testing (a few cents for the sample runs below) but isn't zero-cost infrastructure like the rest of the lab. Said plainly here rather than glossed over.
+## Cost, honestly
+Everything else in this portfolio (Wazuh, TheHive, LocalStack, Terraform) is genuinely free. This isn't — API calls cost a small amount per token. Not going to pretend otherwise just because the rest of the lab is free. It's cheap to test with (fractions of a cent per call for something this small) but it's not zero.
 
-## Run it
+## Running it
 ```bash
-cd llm-triage
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=<your key>   # get one at console.anthropic.com — never commit it
+export ANTHROPIC_API_KEY=<your key>
 
 python3 alert_summarizer.py sample-wazuh-alert.json
 python3 incident_timeline.py sample-events.json
 ```
-`sample-wazuh-alert.json` and `sample-events.json` are synthetic — reserved-for-documentation IP ranges (`198.51.100.0/24`) and made-up hostnames, safe to commit and safe to run against.
+The sample JSON files use made-up hostnames and the `198.51.100.0/24` range that's reserved specifically for documentation examples — nothing real in there, safe to run against.
 
-## Design constraints (deliberate)
-- The system prompt explicitly tells the model not to decide an alert is a false positive or take any action — it's a triage aid, not an autonomous responder, matching the catalog's own scoping note.
-- `incident_timeline.py`'s prompt forces an "UNVERIFIED DRAFT — human review required" line into every output, so the narrative can never be mistaken for a validated record.
+## Why the prompts are written the way they are
+First draft of the summarizer prompt just said "summarize this alert." Turns out an LLM asked to summarize an alert will also happily hand you a verdict you didn't ask for — "this looks benign," "probably a false positive" — which is exactly the kind of thing a triage *aid* shouldn't be doing on its own. Had to explicitly tell it not to decide anything or recommend an action. Same idea in the timeline script — it's forced to end every output with an "UNVERIFIED DRAFT, human review required" line so nobody downstream mistakes a first-pass narrative for something validated.
 
-## What I learned / trade-offs
-The interesting design decision here isn't the API call (that's a few lines) — it's the system prompt boundary. An LLM asked to "summarize this alert" will happily also volunteer a verdict ("this is probably benign") if you let it; the prompt has to explicitly forbid that, or the "triage aid" quietly becomes an "auto-classifier" with none of the validation that would require.
+Small thing, but it's the actual design decision here. The API call itself is maybe five lines.
 
-## Security note
-Never commit `ANTHROPIC_API_KEY`. `venv/` is gitignored.
+Don't commit `ANTHROPIC_API_KEY`. `venv/` is gitignored.

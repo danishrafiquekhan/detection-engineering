@@ -1,24 +1,25 @@
-# Local lab: Wazuh (open-source SIEM)
+# Running Wazuh locally instead of paying for Sentinel
 
-**Status: running, verified healthy on 2026-08-29** — cluster status green, manager's analysis/log-collection/rule engine all confirmed running.
+Wazuh is open source (Apache 2.0), so I run it on my own Mac in Docker instead of spinning up a Sentinel workspace just to have something to point detections at.
 
-This is the self-hosted, fully open-source (Apache 2.0) equivalent of Microsoft Sentinel used to actually run and test detections locally, with no Azure subscription or cost.
-
-## Run it
+## Getting it running
 ```bash
 chmod +x setup-wazuh.sh
 ./setup-wazuh.sh
 ```
-This clones the official [wazuh-docker](https://github.com/wazuh/wazuh-docker) single-node deployment into `~/securitylab/wazuh-docker` (kept outside this git repo deliberately — it generates real TLS certs that must never be committed), fixes a permissions quirk in the cert generator, and starts the stack.
+This grabs the official wazuh-docker single-node setup, drops it in `~/securitylab/wazuh-docker` (outside this repo on purpose — it generates real TLS certs and those should never end up in git), patches around a permissions bug in their cert generator, and brings the stack up.
 
-- Dashboard: https://localhost
-- Indexer (OpenSearch API): https://localhost:9200
+Dashboard's at https://localhost, the indexer API at :9200.
 
-## Where this fits vs. the Sigma/KQL rules in this repo
-Wazuh is a **host- and network-telemetry** SIEM (agent-based log collection, file integrity monitoring, and it natively ingests Suricata's NIDS alerts) — it isn't a natural home for the Azure-AD-sign-in-log rules already in `sigma-rules/`, which are written for Microsoft Sentinel specifically. They're deliberately kept as-is (Sentinel/KQL is the specific skill the target job postings ask for). Wazuh's role here is different and complementary: it's what actually runs, for free, when there's real host/network telemetry to detect against — e.g. the Suricata NIDS already set up separately (`~/securitylab/suricata`) is a natural next log source to wire into it.
+## Why Wazuh doesn't replace the Sigma/KQL rules
 
-## What I learned / trade-offs
-The official cert generator (`wazuh/wazuh-certs-generator`) has a real bug/quirk on macOS: partway through, it `chmod`s the output directory to read-only, before it's finished writing the two manager-cluster cert files — so the very first run always fails on `root-ca-manager.{pem,key}`. Since those two are just the manager's copy of the same root CA (single-node doesn't need a separate cluster CA), the fix is to copy `root-ca.pem`/`root-ca.key` to those names manually rather than trying to force the generator to finish. Also: no arm64 images yet for Wazuh 4.9.2, so it runs under x86 emulation on Apple Silicon — noticeably slower to become healthy than a native stack would be.
+I went back and forth on whether to convert my existing sign-in rules to run against Wazuh instead, and decided against it — Wazuh is built for host and network telemetry (agents, file integrity checks, Suricata alerts), not Entra ID cloud logs. Trying to force an Azure AD sign-in rule onto it would've been a fake fit just so I could say "it runs." The KQL rules stay written for Sentinel because that's literally the tool the job postings ask about. Wazuh's job here is different: it's what I actually run when I want to test something end-to-end without waiting on a real Azure tenant. The Suricata setup I already had (`~/securitylab/suricata`) is the obvious next thing to feed into it.
 
-## Security note
-Nothing in this script or repo contains real certs, keys, or passwords — they're generated fresh, locally, by `setup-wazuh.sh`, into a directory that's never committed. Change the default dashboard password (`admin`/`SecretPassword`) on first login.
+## The annoying bug I hit
+
+Wazuh's own cert generator (`wazuh-certs-generator`) locks its output folder read-only partway through the run, before it finishes writing two of the cert files it needs. First time I ran it, it just failed on `root-ca-manager.pem`/`.key` with a permission error and I assumed I'd done something wrong. Turns out those two files are just a copy of the same root CA the single-node setup already generated — there's no actual second CA involved — so the fix was to copy them over by hand instead of fighting the generator to finish on its own.
+
+Also worth knowing: there's no arm64 build of Wazuh yet, so on my M-series Mac it's running under x86 emulation. Takes noticeably longer to come up healthy than you'd expect from watching `docker ps`.
+
+## One thing to actually do
+Change the dashboard password. It ships with `admin`/`SecretPassword` as the documented default, which is fine for getting started but not something to leave sitting there.
