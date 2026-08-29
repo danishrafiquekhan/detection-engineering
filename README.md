@@ -22,3 +22,8 @@ The `sentinel_asim` pipeline only auto-resolves the target table for a handful o
 
 ## Security note
 No real tenant IDs, subscription IDs, credentials, or organisational log data are committed here. Sample values are placeholders (e.g. `<your-tenant-id>`).
+
+## One-time setup after cloning
+```bash
+git config core.hooksPath .githooks   # enables the gitleaks secret-scan on commit
+```
