@@ -1,0 +1,2 @@
+AuditLogs
+| where OperationName =~ "Add member to role" and (TargetResources contains "Global Administrator" or TargetResources contains "Privileged Role Administrator")

@@ -1,0 +1,2 @@
+OfficeActivity
+| where Operation =~ "FileDownloaded"

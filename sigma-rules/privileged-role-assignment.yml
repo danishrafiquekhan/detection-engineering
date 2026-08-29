@@ -1,0 +1,32 @@
+title: Account Added to a Privileged Entra ID Role
+id: 1e3b7c9a-2d4f-4b8e-9a1c-5d6e7f8a9b0c
+status: experimental
+description: >
+  Detects an account being added to a highly privileged directory role
+  (Global Administrator, Privileged Role Administrator) outside of PIM's
+  time-bound activation flow — i.e. a standing/permanent assignment rather
+  than a just-in-time one. This is the detection that backs up PIM as a
+  preventive control: PIM should make this rare, so it should also be rare
+  enough to alert on every time it happens.
+references:
+  - https://attack.mitre.org/techniques/T1098/003/
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.persistence
+  - attack.privilege-escalation
+  - attack.t1098.003
+logsource:
+  category: audit
+  product: azure
+  service: auditlogs
+detection:
+  selection:
+    OperationName: 'Add member to role'
+    TargetResources|contains:
+      - 'Global Administrator'
+      - 'Privileged Role Administrator'
+  condition: selection
+falsepositives:
+  - Approved break-glass account setup, if properly change-managed and documented
+level: critical

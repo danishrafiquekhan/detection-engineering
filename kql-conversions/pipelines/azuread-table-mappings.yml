@@ -1,0 +1,42 @@
+name: azuread-table-mappings
+priority: 5
+transformations:
+  - id: set-signinlogs-table
+    type: set_state
+    key: query_table
+    val: SigninLogs
+    rule_conditions:
+      - type: logsource
+        category: authentication
+        product: azure
+        service: signinlogs
+
+  - id: set-auditlogs-table
+    type: set_state
+    key: query_table
+    val: AuditLogs
+    rule_conditions:
+      - type: logsource
+        category: audit
+        product: azure
+        service: auditlogs
+
+  - id: set-oauth-consent-table
+    type: set_state
+    key: query_table
+    val: AuditLogs
+    rule_conditions:
+      - type: logsource
+        category: application
+        product: azure
+        service: auditlogs
+
+  - id: set-m365-auditlogs-table
+    type: set_state
+    key: query_table
+    val: OfficeActivity
+    rule_conditions:
+      - type: logsource
+        category: application
+        product: m365
+        service: auditlogs

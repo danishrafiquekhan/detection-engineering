@@ -1,0 +1,6 @@
+[
+  {"timestamp": "2026-08-29T10:14:01Z", "source": "suricata", "event": "SMB scan detected from 198.51.100.23 to 10.10.0.15:445"},
+  {"timestamp": "2026-08-29T10:15:32Z", "source": "wazuh", "event": "High-severity Suricata alert rule 100010 fired on lab-host-01"},
+  {"timestamp": "2026-08-29T10:18:47Z", "source": "wazuh-fim", "event": "New file created: C:\\Windows\\Temp\\update.exe on lab-host-01"},
+  {"timestamp": "2026-08-29T10:19:03Z", "source": "wazuh", "event": "Process started: update.exe by user lab-user on lab-host-01"}
+]

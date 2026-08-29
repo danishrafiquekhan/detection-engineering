@@ -1,0 +1,35 @@
+title: Suspicious OAuth Application Consent Grant
+id: 8d2f5a1c-9b3e-4c7a-a1d4-6e7f8a9b0c1d
+status: experimental
+description: >
+  Detects a user consenting to an OAuth application requesting high-risk
+  Graph permissions (mail read/send, full directory access, files read-all).
+  A common consent-phishing pattern is a newly registered, unverified app
+  requesting exactly this kind of broad access.
+references:
+  - https://attack.mitre.org/techniques/T1528/
+  - https://learn.microsoft.com/security/operations/incident-response-playbook-app-consent
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.persistence
+  - attack.t1528
+logsource:
+  category: application
+  product: azure
+  service: auditlogs
+detection:
+  selection:
+    OperationName: 'Consent to application'
+    ResultType: 'success'
+  high_risk_scope:
+    ModifiedProperties|contains:
+      - 'Mail.ReadWrite'
+      - 'Mail.Send'
+      - 'Directory.ReadWrite.All'
+      - 'Files.ReadWrite.All'
+  condition: selection and high_risk_scope
+falsepositives:
+  - IT-approved line-of-business app onboarding requesting the same broad scopes
+  - Verified publisher apps from Microsoft's own catalog
+level: high

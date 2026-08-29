@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-08-29T10:15:32.000Z",
+  "rule": {
+    "id": "100010",
+    "level": 10,
+    "description": "High-severity Suricata alert detected"
+  },
+  "agent": {
+    "name": "lab-host-01",
+    "ip": "10.10.0.15"
+  },
+  "data": {
+    "srcip": "198.51.100.23",
+    "dstip": "10.10.0.15",
+    "dstport": 445,
+    "alert": {
+      "signature": "ET SCAN Potential SMB Scan",
+      "category": "Attempted Information Leak",
+      "severity": 1
+    }
+  }
+}

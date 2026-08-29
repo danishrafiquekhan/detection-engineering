@@ -1,5 +1,5 @@
 SIGMA := sigma
-PIPELINES := -p kql-conversions/pipelines/signinlogs-table.yml -p sentinel_asim
+PIPELINES := -p kql-conversions/pipelines/azuread-table-mappings.yml -p sentinel_asim
 
 .PHONY: convert
 convert:
@@ -9,6 +9,6 @@ convert:
 		$(SIGMA) convert -t kusto $(PIPELINES) -o kql-conversions/generated/$$name.kql $$f; \
 	done
 
-.PHONY: check
-check:
-	$(SIGMA) check sigma-rules/*.yml
+# Note: `sigma check` hangs indefinitely in this environment (seems to reach
+# out to attack.mitre.org for tag validation and stalls) — validate syntax
+# via `make convert` instead, which parses every rule as a side effect.

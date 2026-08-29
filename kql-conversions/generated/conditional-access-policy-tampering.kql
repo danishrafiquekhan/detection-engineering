@@ -1,0 +1,2 @@
+AuditLogs
+| where (OperationName in~ ("Update conditional access policy", "Update policy")) and (ModifiedProperties contains "\"state\":\"disabled\"" or ModifiedProperties contains "excludeUsers" or ModifiedProperties contains "excludeGroups")

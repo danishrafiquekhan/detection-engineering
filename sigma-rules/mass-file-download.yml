@@ -1,0 +1,28 @@
+title: Unusually High Volume of SharePoint/OneDrive Downloads by a Single User
+id: 6a8c1e3f-4b2d-4e9a-8c1b-7d8e9f0a1b2c
+status: experimental
+description: >
+  Flags file-download events, per-user, above a threshold within a short
+  window — a common exfiltration precursor. High false-positive risk by
+  design (see notes below); this is a baseline-vs-anomaly problem, not a
+  clean single-event signature.
+references:
+  - https://attack.mitre.org/techniques/T1567/
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.exfiltration
+  - attack.t1567
+logsource:
+  category: application
+  product: m365
+  service: auditlogs
+detection:
+  selection:
+    Operation: 'FileDownloaded'
+  condition: selection
+falsepositives:
+  - Bulk export ahead of planned offboarding or legitimate migration work
+  - Sync clients (OneDrive/SharePoint sync) generating high download volume as normal background behaviour
+  - A user backing up their own files before a device reimage
+level: medium

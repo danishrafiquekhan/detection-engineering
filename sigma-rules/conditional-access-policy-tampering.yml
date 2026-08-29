@@ -1,0 +1,33 @@
+title: Conditional Access Policy Disabled or Exclusion Added
+id: 9b1d3f5a-6c8e-4a2b-9d1c-3e4f5a6b7c8d
+status: experimental
+description: >
+  Detects a Conditional Access policy being disabled, or an account being
+  added to a policy's exclusion group. A favourite real-world attacker move:
+  quietly disable MFA enforcement for a target, then use already-stolen
+  credentials without tripping the control that would otherwise stop them.
+references:
+  - https://attack.mitre.org/techniques/T1556/009/
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.defense-evasion
+  - attack.t1556.009
+logsource:
+  category: audit
+  product: azure
+  service: auditlogs
+detection:
+  selection:
+    OperationName:
+      - 'Update conditional access policy'
+      - 'Update policy'
+  disabled_or_excluded:
+    ModifiedProperties|contains:
+      - '"state":"disabled"'
+      - 'excludeUsers'
+      - 'excludeGroups'
+  condition: selection and disabled_or_excluded
+falsepositives:
+  - Planned, change-managed policy update (should still be reviewed, just lower priority)
+level: high

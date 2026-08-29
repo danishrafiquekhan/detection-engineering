@@ -1,0 +1,2 @@
+AuditLogs
+| where (OperationName =~ "Consent to application" and ResultType =~ "success") and (ModifiedProperties contains "Mail.ReadWrite" or ModifiedProperties contains "Mail.Send" or ModifiedProperties contains "Directory.ReadWrite.All" or ModifiedProperties contains "Files.ReadWrite.All")

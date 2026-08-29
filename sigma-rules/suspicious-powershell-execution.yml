@@ -1,0 +1,33 @@
+title: Encoded or Obfuscated PowerShell Execution
+id: 2f4a6c8e-1b3d-4f5a-8c2e-9d1f2a3b4c5d
+status: experimental
+description: >
+  Detects PowerShell invoked with an encoded-command flag, a common technique
+  to hide the real payload from casual log review and simple string-based
+  detection. Endpoint telemetry source, not identity — this is the one rule
+  in this repo that targets Defender for Endpoint / Microsoft 365 Defender
+  process telemetry rather than Entra ID logs.
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.execution
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith: '\powershell.exe'
+  selection_flags:
+    CommandLine|contains:
+      - '-enc'
+      - '-EncodedCommand'
+      - '-e '
+      - 'FromBase64String'
+  condition: selection_img and selection_flags
+falsepositives:
+  - Legitimate admin scripts and scheduled tasks that pass encoded commands (should be an explicit exclusion list of known-good scripts/hashes, not a blanket suppression)
+  - Configuration management tooling (DSC, some deployment tools) that encodes commands by default
+level: high
