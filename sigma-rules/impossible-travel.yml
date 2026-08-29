@@ -1,0 +1,29 @@
+title: Sign-in Flagged for Atypical Travel or Unfamiliar Features
+id: 3b8e4a2f-6c1d-4a9e-8b2a-1d2e3f4a5b6c
+status: experimental
+description: >
+  Detects sign-ins where Azure AD Identity Protection has already flagged the
+  event with an atypical-travel or unfamiliar-sign-in-properties risk detail,
+  which is Microsoft's own impossible-travel style heuristic.
+references:
+  - https://attack.mitre.org/techniques/T1078/004/
+  - https://learn.microsoft.com/entra/id-protection/concept-identity-protection-risks
+author: Danish Khan
+date: 2026-08-29
+tags:
+  - attack.initial-access
+  - attack.t1078.004
+logsource:
+  category: authentication
+  product: azure
+  service: signinlogs
+detection:
+  selection:
+    RiskEventTypes|contains:
+      - 'unfamiliarFeatures'
+      - 'anonymizedIPAddress'
+  condition: selection
+falsepositives:
+  - New device or browser used for the first time by a legitimate user
+  - Corporate VPN or anonymizing proxy used intentionally by the organisation
+level: high

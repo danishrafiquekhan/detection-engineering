@@ -1,0 +1,12 @@
+name: signinlogs-table
+priority: 5
+transformations:
+  - id: set-signinlogs-table
+    type: set_state
+    key: query_table
+    val: SigninLogs
+    rule_conditions:
+      - type: logsource
+        category: authentication
+        product: azure
+        service: signinlogs

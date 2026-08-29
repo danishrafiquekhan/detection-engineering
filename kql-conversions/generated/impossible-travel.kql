@@ -1,0 +1,2 @@
+SigninLogs
+| where RiskEventTypes contains "unfamiliarFeatures" or RiskEventTypes contains "anonymizedIPAddress"
