@@ -1,0 +1,3 @@
+Rule,ATT&CK Technique,Data Source,Status
+impossible-travel,T1078.004,Azure AD Sign-in Logs,planned
+suspicious-signin-velocity,T1110,Azure AD Sign-in Logs,planned
