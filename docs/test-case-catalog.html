@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Test Case Catalog — Completion Status</title>
+<style>
+  @page { margin: 2.2cm 2cm; }
+  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1a1a1a; }
+  h1 { font-size: 22pt; margin-top: 0; }
+  h2 { font-size: 15pt; border-bottom: 2px solid #2b3a55; padding-bottom: 4px; margin-top: 30px; color: #1a2540; }
+  h3 { font-size: 12pt; margin-top: 18px; color: #2b3a55; }
+  code { background: #f2f3f5; padding: 1px 5px; border-radius: 4px; font-family: "SF Mono", Menlo, monospace; font-size: 9pt; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 20px; font-size: 9pt; }
+  th, td { border: 1px solid #d0d3d8; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef1f6; }
+  .cover { height: 24cm; display: flex; flex-direction: column; justify-content: center; page-break-after: always; }
+  .cover h1 { font-size: 30pt; color: #1a2540; }
+  .cover .sub { font-size: 13pt; color: #444; margin: 10px 0 40px; }
+  .cover .meta { font-size: 10pt; color: #666; }
+  .part { page-break-before: always; }
+  .badge { display: inline-block; font-size: 8pt; font-weight: bold; padding: 2px 8px; border-radius: 8px; color: white; }
+  .built { background: #2a7d46; }
+  .partial { background: #b8860b; }
+  .gap { background: #a33; }
+  .box { border-left: 4px solid #2b3a55; background: #f5f6f8; padding: 8px 12px; margin: 10px 0; font-size: 9.5pt; }
+  a { color: #1d4ed8; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Test Case Catalog</h1>
+  <div class="sub">Completion Status &amp; Tool Comparison &mdash; Ideal (Catalog Spec) vs. Free/Open-Source Lab</div>
+  <div class="meta">
+    Personal reference &middot; Danish Khan<br>
+    Companion to <em>Security Lab Guide</em> (2026-08-29) and the original Security Lab Test Case Catalog<br>
+    Compiled 2026-08-29
+  </div>
+</div>
+
+<h2>Summary</h2>
+<p>Every test case from the original catalog is listed below with an honest status: <span class="badge built">BUILT</span> means a real artifact exists and was run/converted/validated; <span class="badge partial">PARTIAL</span> means the attack/query/design is real but one piece (usually a live cloud feature) is documented rather than executed; <span class="badge gap">GAP</span> means it needs something this lab genuinely doesn't have for free (a paid license, a live tenant, a Windows VM) and the exact free path is named.</p>
+<table>
+<tr><th>Category</th><th>Built</th><th>Partial</th><th>Gap (free path exists)</th></tr>
+<tr><td>1. Detection Engineering</td><td>8 / 8 (all Sigma rules + KQL)</td><td>0</td><td>0</td></tr>
+<tr><td>2. Atomic Red Team</td><td>0</td><td>0</td><td>4 / 4 (needs your Windows VM — safety setup is done)</td></tr>
+<tr><td>3. SOAR / Automation</td><td>0 (infra only)</td><td>0</td><td>4 / 4 (needs custom Cortex analyzer dev — infra ready)</td></tr>
+<tr><td>4. Identity &amp; Access Management</td><td>2 / 5 (Graph scripts)</td><td>0</td><td>3 / 5 (needs a free M365 Developer Program tenant)</td></tr>
+<tr><td>5. Cloud Security</td><td>2 / 5 (Terraform misconfig, LocalStack privesc sim)</td><td>1 / 5 (privesc detection query, no live log to fire it against)</td><td>2 / 5 (need Defender for Cloud / Azure Policy on a configured subscription)</td></tr>
+<tr><td>6. AI-assisted workflows</td><td>2 / 2 (scripts written, SDK verified)</td><td>0</td><td>0 (not run against a live API key — costs real, small money per call)</td></tr>
+</table>
+
+<div class="part"></div>
+<h2>1. Detection Engineering — all 8 built</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Ideal tool</th><th>What was used</th><th>Status</th></tr>
+<tr><td>1.1</td><td>Impossible travel</td><td>Sentinel sign-in logs</td><td>Sigma → KQL via custom pipeline</td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.2</td><td>Password spray</td><td>Sentinel sign-in logs</td><td>Sigma → KQL + hand-written <code>summarize</code> aggregation</td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.3</td><td>Suspicious OAuth consent</td><td>Entra ID audit logs</td><td>Sigma → KQL against <code>AuditLogs</code></td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.4</td><td>Privileged role assignment</td><td>Entra ID audit logs</td><td>Sigma → KQL against <code>AuditLogs</code></td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.5</td><td>Mass file download</td><td>M365 audit logs</td><td>Sigma → KQL against <code>OfficeActivity</code></td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.6</td><td>Conditional Access tampering</td><td>Entra ID audit logs</td><td>Sigma → KQL against <code>AuditLogs</code></td><td><span class="badge built">BUILT</span></td></tr>
+<tr><td>1.7</td><td>Anomalous PowerShell</td><td>Defender for Endpoint</td><td>Sigma → KQL via <code>sentinel_asim</code> → <code>imProcessCreate</code></td><td><span class="badge built">BUILT</span></td></tr>
+</table>
+<div class="box"><strong>Real gap disclosed honestly:</strong> none of these 8 KQL queries have been run against a live Sentinel workspace — no Azure AD tenant with real sign-in/audit data exists yet. "Converts cleanly and is syntactically correct" is what's proven; "fires correctly on real data with an acceptable false-positive rate" still needs that tenant. See <code>detection-engineering/attack-mapping.csv</code> Status column, which says exactly this per rule.</div>
+<p>All artifacts: <code>detection-engineering/sigma-rules/*.yml</code>, <code>kql-conversions/generated/*.kql</code>.</p>
+
+<div class="part"></div>
+<h2>2. Atomic Red Team — all 4 need your Windows VM</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Validates rule</th><th>Status</th></tr>
+<tr><td>2.1</td><td>T1078.004 Valid Accounts</td><td>1.1 or 1.2</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>2.2</td><td>T1098.003 Account Manipulation</td><td>1.4</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>2.3</td><td>T1059.001 PowerShell</td><td>1.7</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>2.4</td><td>T1003 Credential Dumping</td><td>none built yet</td><td><span class="badge gap">GAP</span> (advanced, isolated VM only)</td></tr>
+</table>
+<p><strong>What's actually done:</strong> the safety-first setup (<code>atomic-red-team-validation/LAB-SETUP.md</code>) — VM isolation rules, UTM configuration, snapshot discipline — all real, none skipped. <strong>What's not done, deliberately:</strong> the Windows evaluation VM itself. That's a multi-GB download with a Microsoft EULA you should read yourself, not something to fetch silently. Once it exists, each of 2.1–2.3 has a rule already built and waiting to validate against (1.1/1.2, 1.4, 1.7 above).</p>
+
+<div class="part"></div>
+<h2>3. SOAR / Automation — infra live, analyzers not yet custom-built</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Ideal tool</th><th>Free equivalent</th><th>Status</th></tr>
+<tr><td>3.1</td><td>Auto-enrich sign-in alert</td><td>Sentinel Logic App</td><td>TheHive + Cortex custom analyzer</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>3.2</td><td>Auto-tag/route by severity</td><td>Sentinel automation rules</td><td>TheHive case templates + tags (UI-configurable)</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>3.3</td><td>Auto-disable on compromise</td><td>Sentinel Logic App + Graph</td><td>Cortex responder calling Graph API</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>3.4</td><td>Ticket creation on alert</td><td>Sentinel Logic App</td><td>TheHive's own case IS the ticket — no separate connector needed</td><td><span class="badge gap">GAP</span></td></tr>
+</table>
+<div class="box"><strong>What's actually running</strong> (verified end-to-end): TheHive + Cortex, both healthy, linked. What's missing for 3.1–3.3 specifically is a <em>custom Cortex analyzer/responder</em> — Cortex ships a Python SDK (<code>cortexutils</code>) for exactly this, but writing one is real, scoped development work (a Python class implementing Cortex's analyzer interface, packaged with a JSON definition), not something to fabricate quickly to check a box. 3.4 is arguably already done by definition — a TheHive case is a ticket; there's no separate "ticketing system" to integrate when the case management tool already is one.</div>
+<p><strong>Concrete next step:</strong> build one real Cortex analyzer against something this lab already has live data for — e.g. an analyzer that takes a username observable and queries LocalStack IAM (already working, see Category 5) for that account's attached policies. That would take 3.1 from GAP to BUILT without needing any new paid service.</p>
+
+<div class="part"></div>
+<h2>4. Identity &amp; Access Management — 2 built, 3 need a free tenant</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Needs premium license?</th><th>Status</th></tr>
+<tr><td>4.1</td><td>Access review automation</td><td>No — Graph API is free on any tier</td><td><span class="badge built">BUILT</span> — <code>intune-endpoint-health-platform/scripts/privileged_role_access_review.py</code></td></tr>
+<tr><td>4.2</td><td>Orphaned account detection</td><td>No — Graph API is free on any tier</td><td><span class="badge built">BUILT</span> — <code>.../orphaned_account_detection.py</code></td></tr>
+<tr><td>4.3</td><td>Conditional Access test matrix</td><td>P1 (Conditional Access)</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>4.4</td><td>PIM activation walkthrough</td><td>P2 (PIM)</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>4.5</td><td>Least-privilege RBAC audit</td><td>No — Azure free tier is enough</td><td><span class="badge gap">GAP</span> (needs a subscription with real role assignments to review)</td></tr>
+</table>
+<div class="box"><strong>The free path for 4.3/4.4, correctly identified:</strong> the <a href="https://developer.microsoft.com/microsoft-365/dev-program">Microsoft 365 Developer Program</a> gives a free instant sandbox tenant with a 90-day (auto-renewing while active) E5 trial — meaning Conditional Access <em>and</em> PIM are both included at no cost. This isn't a paid-tool gap at all, just an unbuilt one. Signing up for that sandbox is the concrete next step, not a blocker.</div>
+
+<div class="part"></div>
+<h2>5. Cloud Security — 2 built, 1 partial, 2 need a configured subscription</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Ideal tool</th><th>Status</th></tr>
+<tr><td>5.1</td><td>Misconfig then fix</td><td>Terraform + Defender for Cloud</td><td><span class="badge built">BUILT</span> (Terraform real; Defender for Cloud finding documented, not screenshotted — see below)</td></tr>
+<tr><td>5.2</td><td>Public storage lockdown</td><td>Azure Policy + Defender for Cloud</td><td><span class="badge gap">GAP</span> (needs a configured subscription)</td></tr>
+<tr><td>5.3</td><td>Key Vault access policy review</td><td>Key Vault + Terraform</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>5.4</td><td>Azure Policy compliance dashboard</td><td>Azure Policy</td><td><span class="badge gap">GAP</span></td></tr>
+<tr><td>5.5</td><td>AWS IAM privesc via CloudTrail</td><td>CloudTrail + GuardDuty</td><td><span class="badge partial">PARTIAL</span> — attack real (LocalStack), detection query written against real CloudTrail schema but never fired live</td></tr>
+</table>
+<div class="box"><strong>On 5.1:</strong> the vulnerable NSG rule (<code>0.0.0.0/0</code> on port 22) was deliberately never applied to a real subscription — see <code>terraform-labs/05-misconfig-then-fix/BEFORE.md</code> for why (didn't want to actually expose a port to the internet just for a screenshot). The fixed version is real, applied, and validated.</div>
+<p><strong>On 5.5:</strong> full detail in <code>aws-identity-detection/detections/privesc-detection.md</code> — run <code>simulate-privesc.sh</code> yourself to see the real attack sequence execute against LocalStack.</p>
+
+<div class="part"></div>
+<h2>6. AI-Assisted Workflows — both built, cost caveat</h2>
+<table>
+<tr><th>#</th><th>Test case</th><th>Status</th></tr>
+<tr><td>6.1</td><td>Alert triage summarizer</td><td><span class="badge built">BUILT</span> — <code>detection-engineering/llm-triage/alert_summarizer.py</code></td></tr>
+<tr><td>6.2</td><td>Incident timeline builder</td><td><span class="badge built">BUILT</span> — <code>.../incident_timeline.py</code></td></tr>
+</table>
+<div class="box">Unlike every other category, this one has a real (small) per-call cost — LLM API calls are billed per token. Both scripts install cleanly and the SDK import was verified; they weren't run against a live API key in this session, so "produces a good summary" is still yours to confirm the first time you run one.</div>
+
+<div class="part"></div>
+<h2>Suggested build order, updated</h2>
+<table>
+<tr><th>Week</th><th>Focus</th><th>What's already done vs. what's left</th></tr>
+<tr><td>1</td><td>Sigma + detection-as-code</td><td>Done: 1.1, 1.2, 1.4 (and 5 more, bonus). Left: deploy against a real Sentinel workspace once you have a tenant.</td></tr>
+<tr><td>2</td><td>ATT&amp;CK + Atomic Red Team</td><td>Done: safety setup. Left: build the Windows VM, run 2.1–2.3 against the rules that are already waiting.</td></tr>
+<tr><td>3</td><td>SOAR</td><td>Done: TheHive+Cortex running and linked. Left: one custom Cortex analyzer (3.1) — the concrete, scoped next step.</td></tr>
+<tr><td>4</td><td>AWS identity + LLM workflow</td><td>Done: 5.5 attack simulation + query design, both 6.1/6.2 scripts. Left: a real AWS free-tier account for a live CloudTrail trail; an Anthropic API key to actually run the LLM scripts.</td></tr>
+</table>
+
+<h2>Reminder on hygiene</h2>
+<p>Every deliverable above went through the same rules as the rest of the portfolio: gitleaks pre-commit scanning on every repo, no real tenant/account IDs, synthetic or reserved-range sample data only, and every README says plainly what's actually verified versus what's designed-but-untested. That distinction — not overclaiming completion — is worth more in an interview than a catalog with every box checked and no way to back it up.</p>
+
+</body>
+</html>
