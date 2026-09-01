@@ -13,6 +13,7 @@ I'm doing it this way (Sigma first, KQL second) on purpose. Writing the detectio
 - `Makefile` — `make convert` regenerates everything
 - `llm-triage/` — two scripts that use Claude to summarize alerts and draft incident timelines
 - `local-lab/` — Wazuh, running locally, because I'm not paying for a Sentinel workspace just to test rule syntax
+- `docs/`, the full test case catalog and lab guide, tracking what's actually built across the whole plan
 
 To run it yourself: `pipx install sigma-cli && sigma plugin install kusto`, then `make convert`.
 
