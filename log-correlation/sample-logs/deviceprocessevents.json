@@ -1,0 +1,41 @@
+[
+  {
+    "Id": "dpe-001",
+    "TimeGenerated": "2026-08-30T19:10:00Z",
+    "DeviceName": "LAB-WIN10-01",
+    "TargetProcessName": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "TargetProcessCommandLine": "powershell.exe -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA",
+    "_expectedRule": "suspicious-powershell-execution",
+    "_expectedMatch": true,
+    "_note": "Classic -enc base64 launcher pattern."
+  },
+  {
+    "Id": "dpe-002",
+    "TimeGenerated": "2026-08-30T19:12:00Z",
+    "DeviceName": "LAB-WIN10-01",
+    "TargetProcessName": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "TargetProcessCommandLine": "powershell.exe -EncodedCommand JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAA=",
+    "_expectedRule": "suspicious-powershell-execution",
+    "_expectedMatch": true
+  },
+  {
+    "Id": "dpe-003",
+    "TimeGenerated": "2026-08-30T19:15:00Z",
+    "DeviceName": "LAB-WIN10-01",
+    "TargetProcessName": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "TargetProcessCommandLine": "powershell.exe -File C:\\scripts\\daily-backup.ps1",
+    "_expectedRule": "suspicious-powershell-execution",
+    "_expectedMatch": false,
+    "_note": "A normal scheduled script run from a file, no encoded command flag."
+  },
+  {
+    "Id": "dpe-004",
+    "TimeGenerated": "2026-08-30T19:16:00Z",
+    "DeviceName": "LAB-WIN10-01",
+    "TargetProcessName": "C:\\Windows\\System32\\cmd.exe",
+    "TargetProcessCommandLine": "cmd.exe /c dir",
+    "_expectedRule": "suspicious-powershell-execution",
+    "_expectedMatch": false,
+    "_note": "Not PowerShell at all, confirms the rule is checking the process image, not just the command line text."
+  }
+]
