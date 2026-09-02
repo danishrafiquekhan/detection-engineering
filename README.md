@@ -11,6 +11,7 @@ I'm doing it this way (Sigma first, KQL second) on purpose. Writing the detectio
 - `kql-conversions/generated/`: the actual KQL, one file per rule
 - `attack-mapping.csv` — rule, technique, data source, status, in one table
 - `Makefile`: `make convert` regenerates everything
+- `log-correlation/`: a local harness that runs the actual Sigma/KQL rule logic against small synthetic log fixtures, to exercise the logic before there is a real Sentinel workspace to test it against
 - `llm-triage/` : two scripts that use Claude to summarize alerts and draft incident timelines
 - `local-lab/` : Wazuh, running locally, because I'm not paying for a Sentinel workspace just to test rule syntax
 - `docs/`, the full test case catalog and lab guide, tracking what's actually built across the whole plan
