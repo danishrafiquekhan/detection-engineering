@@ -1,0 +1,45 @@
+[
+  {
+    "Id": "oa-001",
+    "TimeGenerated": "2026-08-30T18:00:00Z",
+    "Operation": "FileDownloaded",
+    "UserId": "spray-target03@contoso-lab.onmicrosoft.com",
+    "ClientIP": "203.0.113.7",
+    "SourceFileName": "Q3-customer-export.xlsx",
+    "_expectedRule": "mass-file-download",
+    "_expectedMatch": true,
+    "_note": "Downloaded shortly after the same account was added to Global Administrator in aud-001, a plausible exfiltration follow-through."
+  },
+  {
+    "Id": "oa-002",
+    "TimeGenerated": "2026-08-30T18:00:30Z",
+    "Operation": "FileDownloaded",
+    "UserId": "spray-target03@contoso-lab.onmicrosoft.com",
+    "ClientIP": "203.0.113.7",
+    "SourceFileName": "hr-compensation-2026.xlsx",
+    "_expectedRule": "mass-file-download",
+    "_expectedMatch": true
+  },
+  {
+    "Id": "oa-003",
+    "TimeGenerated": "2026-08-30T09:30:00Z",
+    "Operation": "FileDownloaded",
+    "UserId": "jordan@contoso-lab.onmicrosoft.com",
+    "ClientIP": "198.51.100.9",
+    "SourceFileName": "meeting-notes.docx",
+    "_expectedRule": "mass-file-download",
+    "_expectedMatch": true,
+    "_note": "An entirely ordinary single download by an unrelated user. Included on purpose: the rule has no per-user threshold, so this matches too. That is exactly the high false-positive risk the repo's attack-mapping.csv already calls out, this harness demonstrates it rather than hiding it."
+  },
+  {
+    "Id": "oa-004",
+    "TimeGenerated": "2026-08-30T09:31:00Z",
+    "Operation": "FileAccessed",
+    "UserId": "jordan@contoso-lab.onmicrosoft.com",
+    "ClientIP": "198.51.100.9",
+    "SourceFileName": "meeting-notes.docx",
+    "_expectedRule": "mass-file-download",
+    "_expectedMatch": false,
+    "_note": "A view, not a download. Confirms the rule filters on Operation and is not matching every SharePoint event."
+  }
+]
