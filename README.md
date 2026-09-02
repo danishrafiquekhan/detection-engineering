@@ -9,7 +9,7 @@ I'm doing it this way (Sigma first, KQL second) on purpose. Writing the detectio
 - `sigma-rules/`: 8 rules right now, covering sign-in abuse, Entra ID audit log tampering, M365 exfiltration, and one endpoint rule (PowerShell)
 - `kql-conversions/pipelines/azuread-table-mappings.yml` a small pySigma pipeline I had to write myself
 - `kql-conversions/generated/`: the actual KQL, one file per rule
-- `attack-mapping.csv` — rule, technique, data source, status, in one table
+- `attack-mapping.csv` : rule, technique, data source, status, in one table
 - `Makefile`: `make convert` regenerates everything
 - `log-correlation/`: a local harness that runs the actual Sigma/KQL rule logic against small synthetic log fixtures, to exercise the logic before there is a real Sentinel workspace to test it against
 - `llm-triage/` : two scripts that use Claude to summarize alerts and draft incident timelines
@@ -26,15 +26,15 @@ Fix was a ~15-line pipeline file that sets the table name explicitly before `sen
 
 ## Where Sigma actually falls short
 
-`password-spray.yml` is the one that exposed this: a password spray is defined by *aggregation* — many different accounts failing from one source in a short window — and Sigma's single-rule spec genuinely has no way to express "count distinct X grouped by Y." So the Sigma rule only captures the per-event condition (the failure codes), and the aggregation (`summarize`, `dcount`, the 10-minute bucket) is hand-written directly into the generated KQL file, with a comment explaining why. I don't love that the two files can drift apart if I'm not careful, but I haven't found a cleaner way to do it within plain Sigma.
+`password-spray.yml` is the one that exposed this: a password spray is defined by *aggregation* — many different accounts failing from one source in a short window and Sigma's single-rule spec genuinely has no way to express "count distinct X grouped by Y." So the Sigma rule only captures the per-event condition (the failure codes), and the aggregation (`summarize`, `dcount`, the 10 minute bucket) is hand-written directly into the generated KQL file, with a comment explaining why. I don't love that the two files can drift apart if I'm not careful, but I haven't found a cleaner way to do it within plain Sigma.
 
-One annoyance: `sigma check` just hangs forever on my machine — seems to try to validate ATT&CK tags against attack.mitre.org and never comes back. I gave up waiting on it and use `make convert` instead, which parses every rule anyway as a side effect of converting it.
+One annoyance: `sigma check` just hangs forever on my machine seems to try to validate ATT&CK tags against attack.mitre.org and never comes back. I gave up waiting on it and use `make convert` instead, which parses every rule anyway as a side effect of converting it.
 
 ## Honest state of things
 
-All 8 rules convert cleanly and are syntactically valid. None of them have run against a real Sentinel workspace with real sign-in data yet, so "compiles" is not the same claim as "works". I don't have a tenant with actual traffic to test false-positive rates against. That's the next real milestone, not this one.
+All 8 rules convert cleanly and are syntactically valid. None of them have run against a real Sentinel workspace with real sign-in data yet, so "compiles" is not the same claim as "works". I don't have a tenant with actual traffic to test false positive rates against. That's the next real milestone, not this one.
 
-No real tenant IDs, subscription IDs, or actual log data anywhere in this repo — everything's a placeholder or synthetic.
+No real tenant IDs, subscription IDs, or actual log data anywhere in this repo everything's a placeholder or synthetic.
 
 ## One-time setup after cloning
 ```bash
