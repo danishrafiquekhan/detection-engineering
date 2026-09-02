@@ -1,0 +1,109 @@
+[
+  {
+    "Id": "aud-001",
+    "TimeGenerated": "2026-08-30T11:02:00Z",
+    "OperationName": "Add member to role",
+    "InitiatedBy": "compromised-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "user: spray-target03@contoso-lab.onmicrosoft.com, role: Global Administrator",
+    "ModifiedProperties": "",
+    "ResultType": "success",
+    "_expectedRule": "privileged-role-assignment",
+    "_expectedMatch": true,
+    "_note": "Standing assignment to Global Administrator, outside PIM's time-bound activation flow."
+  },
+  {
+    "Id": "aud-002",
+    "TimeGenerated": "2026-08-30T11:05:00Z",
+    "OperationName": "Add member to role",
+    "InitiatedBy": "compromised-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "user: spray-target07@contoso-lab.onmicrosoft.com, role: Privileged Role Administrator",
+    "ModifiedProperties": "",
+    "ResultType": "success",
+    "_expectedRule": "privileged-role-assignment",
+    "_expectedMatch": true
+  },
+  {
+    "Id": "aud-003",
+    "TimeGenerated": "2026-08-30T11:07:00Z",
+    "OperationName": "Add member to role",
+    "InitiatedBy": "helpdesk@contoso-lab.onmicrosoft.com",
+    "TargetResources": "user: jordan@contoso-lab.onmicrosoft.com, role: Reports Reader",
+    "ModifiedProperties": "",
+    "ResultType": "success",
+    "_expectedRule": "privileged-role-assignment",
+    "_expectedMatch": false,
+    "_note": "A routine, low-privilege role assignment. Should not trip a rule scoped to Global Administrator and Privileged Role Administrator only."
+  },
+  {
+    "Id": "aud-004",
+    "TimeGenerated": "2026-08-30T11:10:00Z",
+    "OperationName": "Update conditional access policy",
+    "InitiatedBy": "compromised-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "policy: Require MFA for all users",
+    "ModifiedProperties": "[{\"displayName\":\"State\",\"oldValue\":\"\\\"enabled\\\"\",\"newValue\":\"\\\"disabled\\\"\"}]",
+    "ResultType": "success",
+    "_expectedRule": "conditional-access-policy-tampering",
+    "_expectedMatch": false,
+    "_note": "FINDING: the policy is genuinely disabled here, and modeled on Microsoft's documented ModifiedProperties shape, an array of displayName/oldValue/newValue objects. The rule's check for the literal text \"state\":\"disabled\" does not match that shape (the key here is \"displayName\":\"State\" with the new value nested separately), so this real-looking tampering event would not fire. That is a gap in the rule itself, surfaced by this fixture rather than fixed here, see log-correlation/README.md."
+  },
+  {
+    "Id": "aud-005",
+    "TimeGenerated": "2026-08-30T11:12:00Z",
+    "OperationName": "Update policy",
+    "InitiatedBy": "compromised-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "policy: Block legacy authentication",
+    "ModifiedProperties": "[{\"displayName\":\"Conditions.Users.ExcludeUsers\",\"oldValue\":\"[]\",\"newValue\":\"[\\\"spray-target03@contoso-lab.onmicrosoft.com\\\"]\"}]",
+    "ResultType": "success",
+    "_expectedRule": "conditional-access-policy-tampering",
+    "_expectedMatch": true,
+    "_note": "The already-compromised account is quietly added to the policy's exclusion list instead of disabling it outright. This one does fire, the rule's plain \"excludeUsers\" substring check happens to match this shape even though the ModifiedProperties structure is the same realistic array format as aud-004."
+  },
+  {
+    "Id": "aud-004b",
+    "TimeGenerated": "2026-08-30T11:11:00Z",
+    "OperationName": "Update conditional access policy",
+    "InitiatedBy": "compromised-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "policy: Require MFA for all users",
+    "ModifiedProperties": "{\"state\":\"disabled\"}",
+    "ResultType": "success",
+    "_expectedRule": "conditional-access-policy-tampering",
+    "_expectedMatch": true,
+    "_note": "Not a realistic Entra ID export, this is the exact flattened text the rule's condition was written to match, included to confirm the substring check itself works as coded. Compare against aud-004, same real-world event, realistic shape, and the rule misses it."
+  },
+  {
+    "Id": "aud-006",
+    "TimeGenerated": "2026-08-30T11:15:00Z",
+    "OperationName": "Update policy",
+    "InitiatedBy": "it-admin@contoso-lab.onmicrosoft.com",
+    "TargetResources": "policy: Require MFA for all users",
+    "ModifiedProperties": "[{\"displayName\":\"DisplayName\",\"oldValue\":\"\\\"Require MFA\\\"\",\"newValue\":\"\\\"Require MFA for all users\\\"\"}]",
+    "ResultType": "success",
+    "_expectedRule": "conditional-access-policy-tampering",
+    "_expectedMatch": false,
+    "_note": "A cosmetic rename, the policy stays enabled and no exclusion is touched."
+  },
+  {
+    "Id": "aud-007",
+    "TimeGenerated": "2026-08-30T13:40:00Z",
+    "OperationName": "Consent to application",
+    "InitiatedBy": "priya@contoso-lab.onmicrosoft.com",
+    "TargetResources": "app: Invoice Sync Pro (unverified publisher)",
+    "ModifiedProperties": "[{\"displayName\":\"ConsentAction.Permissions\",\"oldValue\":\"\",\"newValue\":\"Mail.ReadWrite, Mail.Send\"}]",
+    "ResultType": "success",
+    "_expectedRule": "suspicious-oauth-consent",
+    "_expectedMatch": true,
+    "_note": "A newly registered, unverified app was granted mailbox read and send, a common consent-phishing payoff."
+  },
+  {
+    "Id": "aud-008",
+    "TimeGenerated": "2026-08-30T13:44:00Z",
+    "OperationName": "Consent to application",
+    "InitiatedBy": "bob@contoso-lab.onmicrosoft.com",
+    "TargetResources": "app: Team Calendar Widget",
+    "ModifiedProperties": "[{\"displayName\":\"ConsentAction.Permissions\",\"oldValue\":\"\",\"newValue\":\"Calendars.Read\"}]",
+    "ResultType": "success",
+    "_expectedRule": "suspicious-oauth-consent",
+    "_expectedMatch": false,
+    "_note": "Read-only calendar access, not on the high-risk scope list."
+  }
+]
