@@ -1,0 +1,46 @@
+title: High Volume of Similarly-Themed Email From Authenticated Bulk-Mail Infrastructure to Finance Mailboxes
+id: 7c1e9a3f-4d2b-4e6a-9c8d-1f2a3b4c5d6e
+status: experimental
+description: >
+  Detects a burst of invoice/payment-themed email, sent through an
+  authenticated bulk-mail sending service (SendGrid, Mailchimp, and
+  similar), landing in finance-tagged mailboxes. This is the invoice-fraud
+  BEC pattern: the message passes SPF/DKIM because it genuinely was sent by
+  SendGrid or Mailchimp's own infrastructure on behalf of a customer
+  account the attacker signed up for, not because it was sent by anyone
+  legitimate. Authentication passing is not evidence of legitimacy here,
+  it is the delivery mechanism the pattern depends on.
+references:
+  - https://attack.mitre.org/techniques/T1566/002/
+  - https://attack.mitre.org/techniques/T1585/001/
+author: Danish Khan
+date: 2026-09-04
+tags:
+  - attack.initial-access
+  - attack.t1566.002
+logsource:
+  category: application
+  product: m365
+  service: emailevents
+detection:
+  selection_recipient:
+    RecipientEmailAddress|contains: 'ap-finance@contoso.com'
+  selection_bulk_infra:
+    SenderFromDomain|endswith:
+      - 'sendgrid.net'
+      - 'mailchimpapp.net'
+    AuthenticationDetails|contains:
+      - 'spf=pass'
+      - 'dkim=pass'
+  selection_theme:
+    Subject|contains:
+      - 'invoice'
+      - 'payment'
+      - 'remittance'
+      - 'wire'
+      - 'outstanding balance'
+  condition: selection_recipient and selection_bulk_infra and selection_theme
+falsepositives:
+  - A vendor the finance team actually subscribes to that legitimately sends invoices through SendGrid or Mailchimp (e.g. a SaaS billing platform)
+  - Marketing or newsletter email misrouted or CC'd to the shared finance distribution list
+level: high

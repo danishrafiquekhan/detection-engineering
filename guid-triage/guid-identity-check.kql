@@ -1,0 +1,35 @@
+// Hand-written investigative query, not sigma-cli generated. Same situation
+// as password-spray.kql's aggregation clause: this is a lookup an analyst
+// runs by hand during triage, not a per-event Sigma condition, so there is
+// no corresponding single Sigma rule for it — unrecognized-guid-access.yml
+// covers the alerting condition, this covers the follow-up investigation.
+//
+// Fill in TargetGuid with the GUID from the alert and run the whole thing.
+// KnownNonIdentityGuids_CL is a fictional custom log table for this repo:
+// a small reference list an analyst maintains by hand of GUIDs that have
+// already been confirmed to be non-identity resource IDs (DevOps Collection
+// IDs, service connection IDs, etc), so the same GUID does not have to be
+// re-investigated from scratch the next time it shows up in an alert. See
+// README.md for how a GUID earns a row in that table.
+let TargetGuid = "a4f8e2d1-9c3b-4a7e-8f1d-2b3c4d5e6f70";
+SigninLogs
+| where AppId == TargetGuid or ResourceIdentity == TargetGuid or Id == TargetGuid
+| project TimeGenerated, Source = "SigninLogs", AppId, AppDisplayName, ResourceDisplayName,
+    UserPrincipalName, IPAddress, ResultType
+| union (
+    AuditLogs
+    | where InitiatedBy has TargetGuid or TargetResources has TargetGuid
+    | project TimeGenerated, Source = "AuditLogs", AppId = TargetGuid, AppDisplayName = "",
+        ResourceDisplayName = OperationName, UserPrincipalName = tostring(InitiatedBy),
+        IPAddress = "", ResultType
+)
+| union (
+    // Analyst-maintained reference table, not a real Sentinel/Log Analytics
+    // table — see the comment above and README.md's "closing the loop" step.
+    KnownNonIdentityGuids_CL
+    | where GuidValue_s == TargetGuid
+    | project TimeGenerated = ConfirmedDate_t, Source = "KnownNonIdentityGuids_CL",
+        AppId = GuidValue_s, AppDisplayName = ResourceType_s, ResourceDisplayName = Notes_s,
+        UserPrincipalName = ConfirmedBy_s, IPAddress = "", ResultType = "reference-match"
+)
+| sort by TimeGenerated asc

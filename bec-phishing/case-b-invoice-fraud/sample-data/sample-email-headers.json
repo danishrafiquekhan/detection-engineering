@@ -1,0 +1,68 @@
+[
+  {
+    "MessageId": "<014f01d9c8a1$mc.202609031201$sg2-vps1@sendgrid.net>",
+    "From": "\"Contoso Billing\" <billing@invoice-notify-contoso.net>",
+    "ReturnPath": "bounces+contoso.billing@sendgrid.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "Invoice #48213 - Outstanding balance due",
+    "ReceivedFromDomain": "o1.sendgrid.net",
+    "ReceivedFromIp": "198.51.100.211",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=sendgrid.net; dkim=pass header.d=sendgrid.net; dmarc=fail",
+    "_note": "SendGrid-hosted sender, invoice theme, hits ap-finance. Fictional lookalike domain."
+  },
+  {
+    "MessageId": "<014f01d9c8a2$mc.202609031204$sg2-vps1@sendgrid.net>",
+    "From": "\"Contoso Billing\" <billing@invoice-notify-contoso.net>",
+    "ReturnPath": "bounces+contoso.billing@sendgrid.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "Invoice #48214 - Outstanding balance due",
+    "ReceivedFromDomain": "o1.sendgrid.net",
+    "ReceivedFromIp": "198.51.100.211",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=sendgrid.net; dkim=pass header.d=sendgrid.net; dmarc=fail",
+    "_note": "Same sender/IP/domain as the row above, second invoice number a minute later. The 'high volume, similarly themed' signal."
+  },
+  {
+    "MessageId": "<014f01d9c8a3$mc.202609031207$sg2-vps1@sendgrid.net>",
+    "From": "\"Contoso Billing\" <billing@invoice-notify-contoso.net>",
+    "ReturnPath": "bounces+contoso.billing@sendgrid.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "URGENT: Wire remittance instructions updated",
+    "ReceivedFromDomain": "o1.sendgrid.net",
+    "ReceivedFromIp": "198.51.100.211",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=sendgrid.net; dkim=pass header.d=sendgrid.net; dmarc=fail",
+    "_note": "Third message from the same burst, payload email asking to change wire instructions."
+  },
+  {
+    "MessageId": "<a1b2c3d4.mc-list@mailchimpapp.net>",
+    "From": "\"Contoso Vendor Payments\" <noreply@vendor-payments-update.com>",
+    "ReturnPath": "bounce-mc.us1_a1b2c3d4@mailchimpapp.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "Payment confirmation required - action needed",
+    "ReceivedFromDomain": "mail1.mailchimpapp.net",
+    "ReceivedFromIp": "203.0.113.58",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=mailchimpapp.net; dkim=pass header.d=mailchimpapp.net; dmarc=fail",
+    "_note": "Same pattern, different bulk-mail provider (Mailchimp) and different lookalike domain."
+  },
+  {
+    "MessageId": "<newsletter-2026-09-issue.mc-list@mailchimpapp.net>",
+    "From": "\"Contoso Product Newsletter\" <news@contoso-updates.com>",
+    "ReturnPath": "bounce-mc.us1_z9y8x7w6@mailchimpapp.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "September product roundup",
+    "ReceivedFromDomain": "mail1.mailchimpapp.net",
+    "ReceivedFromIp": "203.0.113.91",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=mailchimpapp.net; dkim=pass header.d=mailchimpapp.net; dmarc=pass",
+    "_note": "Legitimate-shaped Mailchimp send, no invoice/payment theme, dmarc actually passes. Included to show the script does not flag every bulk-mail message, only the themed/misaligned ones."
+  },
+  {
+    "MessageId": "<inv-2026-09-0031@billing.saasvendor.com>",
+    "From": "\"SaaS Vendor Billing\" <billing@saasvendor.com>",
+    "ReturnPath": "bounces@sendgrid.net",
+    "To": "ap-finance@contoso.com",
+    "Subject": "Your September invoice is ready",
+    "ReceivedFromDomain": "o5.sendgrid.net",
+    "ReceivedFromIp": "192.0.2.140",
+    "AuthenticationResults": "spf=pass smtp.mailfrom=sendgrid.net; dkim=pass header.d=saasvendor.com; dmarc=pass",
+    "_note": "A real subscribed-to vendor sending a genuine invoice through SendGrid, DKIM aligns to the vendor's own domain and DMARC passes. This is the false-positive case the rule's falsepositives section calls out."
+  }
+]

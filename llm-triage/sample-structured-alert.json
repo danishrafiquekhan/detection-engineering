@@ -1,0 +1,31 @@
+{
+  "alert_type": "Impossible Travel Sign-in",
+  "entity": {
+    "type": "user",
+    "value": "jordan@contoso-lab.onmicrosoft.com",
+    "role": "Accounts Payable Specialist"
+  },
+  "risk_signals": [
+    {
+      "signal": "Sign-in from 198.51.100.44 (New York, US)",
+      "timestamp": "2026-09-02T14:02:11Z"
+    },
+    {
+      "signal": "Sign-in from 203.0.113.77 (Singapore)",
+      "timestamp": "2026-09-02T14:19:47Z"
+    },
+    {
+      "signal": "Travel time between the two sign-in locations is not physically possible in 17 minutes"
+    },
+    {
+      "signal": "Second sign-in flagged unfamiliarFeatures by Entra ID risk detection"
+    },
+    {
+      "signal": "Second sign-in did not satisfy an MFA challenge; legacy authentication protocol was used"
+    }
+  ],
+  "context": {
+    "recent_alerts_last_30_days_for_this_user": 0,
+    "device_on_second_signin": "unmanaged, not previously seen for this user"
+  }
+}

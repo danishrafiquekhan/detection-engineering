@@ -1,0 +1,41 @@
+title: External Sender Impersonating a Protected Display Name With Failed Authentication
+id: 9d3f7b2c-5a6e-4c8d-8f1a-2b3c4d5e6f7a
+status: experimental
+description: >
+  Detects an email where the sender's display name matches a maintained
+  list of protected names (executives, finance leadership) but the sending
+  domain is not corporate and SPF/DKIM/DMARC alignment fails. This is the
+  classic "free/personal webmail spoofing an executive's display name"
+  pattern — Outlook and most mail clients surface the display name far more
+  prominently than the actual From address, so a name match alone is often
+  enough to get a reply.
+references:
+  - https://attack.mitre.org/techniques/T1656/
+  - https://attack.mitre.org/techniques/T1585/002/
+author: Danish Khan
+date: 2026-09-04
+tags:
+  - attack.initial-access
+  - attack.t1656
+logsource:
+  category: application
+  product: m365
+  service: emailevents
+detection:
+  selection_display_name:
+    SenderDisplayName|contains:
+      - 'Alex Whitfield'
+      - 'Priya Raman'
+      - 'Morgan Reyes'
+  filter_internal_domain:
+    SenderFromDomain: 'contoso.com'
+  selection_auth_fail:
+    AuthenticationDetails|contains:
+      - 'spf=fail'
+      - 'dkim=fail'
+      - 'dmarc=fail'
+  condition: selection_display_name and not filter_internal_domain and selection_auth_fail
+falsepositives:
+  - An executive legitimately emailing from a personal address during an outage of corporate mail, if this is a known and documented exception
+  - A false match on a protected name shared with an unrelated external contact (review the protected-name list periodically to keep it specific, e.g. full name rather than first name alone)
+level: high

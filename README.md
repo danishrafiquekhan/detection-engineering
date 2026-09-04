@@ -12,7 +12,9 @@ I am doing it this way (Sigma first, KQL second) on purpose. Writing the detecti
 - `attack-mapping.csv`: rule, technique, data source, status, in one table
 - `Makefile`: `make convert` regenerates everything
 - `log-correlation/`: a local harness that runs the actual Sigma/KQL rule logic against small synthetic log fixtures, to exercise the logic before there is a real Sentinel workspace to test it against
-- `llm-triage/`: two scripts that use Claude to summarize alerts and draft incident timelines
+- `llm-triage/`: three scripts that use Claude to summarize alerts, draft incident timelines, and triage a structured alert into a recommended next step
+- `guid-triage/`: a Sigma rule, KQL lookup, and a documented runbook for triaging an "unrecognized GUID" alert down to a real identity or a non-identity resource ID
+- `bec-phishing/`: two BEC/phishing cases (invoice fraud via authenticated bulk-mail infrastructure, executive impersonation via personal email), each with a Sigma rule and supporting artifacts
 - `local-lab/`: Wazuh, running locally, because I am not paying for a Sentinel workspace just to test rule syntax
 - `docs/`, the full test case catalog and lab guide, tracking what is actually built across the whole plan
 

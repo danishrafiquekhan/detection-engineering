@@ -1,0 +1,38 @@
+title: Unrecognized GUID Accessing a Resource
+id: 2f6a8d1c-3b4e-4c9a-8d1f-5a6b7c8d9e0f
+status: experimental
+description: >
+  Detects a sign-in or resource access event where the actor's AppId or
+  ObjectId is a well-formed GUID but the directory-side display name for it
+  is empty. In practice this fires on two very different populations: real
+  identities Entra ID has not yet cached a friendly name for (new managed
+  identities, some first-party Microsoft service principals), and non-identity
+  resource IDs that get logged in an identity-shaped field even though they
+  are not an identity at all (an Azure DevOps Collection ID showing up as an
+  "actor" is the case this rule was written after). This rule cannot tell
+  those two populations apart by itself, that is what the runbook in this
+  folder's README is for.
+references:
+  - https://attack.mitre.org/techniques/T1078/004/
+  - https://learn.microsoft.com/entra/identity/monitoring-health/reference-audit-activities
+author: Danish Khan
+date: 2026-09-04
+tags:
+  - attack.defense-evasion
+  - attack.t1078.004
+logsource:
+  category: authentication
+  product: azure
+  service: signinlogs
+detection:
+  selection:
+    AppDisplayName: ''
+    ResourceDisplayName: ''
+  guid_present:
+    AppId|re: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+  condition: selection and guid_present
+falsepositives:
+  - A newly provisioned managed identity, before Graph's display-name metadata for it has propagated
+  - A first-party Microsoft service principal whose display name is legitimately blank in this tenant's cache
+  - A non-identity GUID (Azure DevOps Collection ID, service connection ID, third-party SaaS internal object ID) that gets logged in an identity-shaped field by whatever emitted the event — this is the specific case this rule and its runbook exist to help triage, see README.md
+level: medium
