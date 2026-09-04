@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-09-04T18:20:21.560+0000",
+  "rule": {
+    "level": 7,
+    "description": "Cloudflare lab site: request to dummy login endpoint (possible scanner/credential-testing activity)",
+    "id": "100011",
+    "firedtimes": 1,
+    "groups": ["local", "cloudflare", "soc-lab", "web", "soc_lab_target", "attack"]
+  },
+  "agent": { "id": "000", "name": "wazuh.manager" },
+  "full_log": "{\"timestamp\":\"2026-09-04T18:20:20.292Z\",\"method\":\"GET\",\"path\":\"/login.html\",\"query\":null,\"client_ip\":\"198.51.100.23\",\"country\":\"IE\",\"user_agent\":\"curl/8.7.1\",\"referer\":null,\"ray_id\":\"a35f01f2ce4b191e\"}",
+  "decoder": { "name": "json" },
+  "data": {
+    "timestamp": "2026-09-04T18:20:20.292Z",
+    "method": "GET",
+    "path": "/login.html",
+    "query": "null",
+    "client_ip": "198.51.100.23",
+    "country": "IE",
+    "user_agent": "curl/8.7.1",
+    "referer": "null",
+    "ray_id": "a35f01f2ce4b191e"
+  },
+  "location": "/var/log/cloudflare/access.log"
+}

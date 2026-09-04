@@ -1,0 +1,25 @@
+<!-- Custom Wazuh rules for the Cloudflare Pages lab target's request logs.
+     Wazuh has no built-in decoder for arbitrary JSON web request logs the
+     way it does for MySQL/sshd/etc, so these rules rely on ossec.conf's
+     <log_format>json</log_format> on the localfile stanza, which makes
+     Wazuh auto-decode top-level JSON keys into `data.<field>` for rule
+     matching. Drop this into /var/ossec/etc/rules/local_rules.xml on the
+     manager and restart (`wazuh-control restart`) to load it. -->
+
+<group name="local,cloudflare,soc-lab,">
+
+  <rule id="100010" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="path">\.+</field>
+    <description>Cloudflare lab site: request received</description>
+    <group>web,soc_lab_target,</group>
+  </rule>
+
+  <rule id="100011" level="7">
+    <if_sid>100010</if_sid>
+    <field name="path">^/login.html$</field>
+    <description>Cloudflare lab site: request to dummy login endpoint (possible scanner/credential-testing activity)</description>
+    <group>web,soc_lab_target,attack,</group>
+  </rule>
+
+</group>

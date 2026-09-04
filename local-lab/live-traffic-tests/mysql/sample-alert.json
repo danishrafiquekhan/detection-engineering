@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-09-04T18:26:54.950+0000",
+  "rule": {
+    "level": 9,
+    "description": "MySQL: authentication failure.",
+    "id": "50106",
+    "firedtimes": 1,
+    "groups": ["mysql_log", "authentication_failed"],
+    "pci_dss": ["10.2.4", "10.2.5", "8.7"],
+    "gdpr": ["IV_35.7.d", "IV_32.2"],
+    "hipaa": ["164.312.b", "164.312.d", "164.312.e.1", "164.312.e.2.I", "164.312.e.2.II"],
+    "nist_800_53": ["AU.14", "AC.7", "SC.2"]
+  },
+  "agent": { "id": "000", "name": "wazuh.manager" },
+  "full_log": "MySQL log: 260904 19:26:54      10 Connect\tAccess denied for user 'labuser'@'localhost' (using password: YES)",
+  "decoder": { "name": "mysql_log" },
+  "location": "/var/log/mysql-lab/mysql-events.log"
+}
