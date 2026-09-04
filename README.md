@@ -43,3 +43,5 @@ No real tenant IDs, subscription IDs, or actual log data anywhere in this repo. 
 git config core.hooksPath .githooks
 ```
 This turns on a gitleaks scan before every commit. Does not catch everything (found that out the hard way, a password string with a `$` in it slipped right past it once), but it is a decent backstop.
+
+For the principles behind the Sigma/KQL split, the Sentinel-vs-Wazuh platform mismatch, and how the live Cloudflare/MySQL alerts in `local-lab/` actually work end to end, see [Part 3.1–3.6](https://github.com/danishrafiquekhan/security-lab-notes/blob/main/parts/03a-tools-wazuh-thehive-localstack.md), [Part 4](https://github.com/danishrafiquekhan/security-lab-notes/blob/main/parts/04-identity-security-deep-dive.md), and [Part 5](https://github.com/danishrafiquekhan/security-lab-notes/blob/main/parts/05-detection-engineering-principles.md) of `security-lab-notes`.
