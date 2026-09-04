@@ -1,0 +1,40 @@
+// Proactive hunt, analyst-run, not alert-triggered. Wider lookback and a
+// lower bar than mfa-fatigue-detection.kql on purpose: the alerting rule
+// is tuned to page someone (ChallengeCount >= 5 in a tight 10-minute
+// window), this hunt is meant to be run periodically by a human scanning
+// for the softer edges of the same pattern, lower-and-slower fatigue
+// attempts, or repeat offenders across a longer period, that the alert
+// threshold would miss entirely.
+//
+// Not validated against real sign-in data, same caveat as every other
+// query in this repo. The 14-day lookback and the "3+ separate bursts"
+// framing below are starting points, not tuned numbers.
+let lookback = 14d;
+let burstWindow = 30m;
+let minChallengesPerBurst = 3;
+SigninLogs
+| where TimeGenerated > ago(lookback)
+| where AuthenticationRequirement == "multiFactorAuthentication"
+| where ResultType in ("500121", "50074")
+| summarize
+    ChallengeCount = count(),
+    IPAddresses = make_set(IPAddress, 10),
+    Apps = make_set(AppDisplayName, 10)
+    by UserPrincipalName, bin(TimeGenerated, burstWindow)
+| where ChallengeCount >= minChallengesPerBurst
+| summarize
+    BurstCount = count(),
+    TotalChallenges = sum(ChallengeCount),
+    FirstBurst = min(TimeGenerated),
+    LastBurst = max(TimeGenerated),
+    DistinctIPs = dcount(tostring(IPAddresses))
+    by UserPrincipalName
+| extend DaysSpan = datetime_diff('day', LastBurst, FirstBurst)
+// Two framings worth reviewing separately when triaging hunt output:
+//  - Users with BurstCount >= 2: repeat targets, worth checking whether
+//    any burst eventually succeeded even if none individually crossed the
+//    alerting threshold.
+//  - Users with DistinctIPs > 1 across bursts: an attacker rotating source
+//    IPs against the same account, which the single-window alert would
+//    never connect across sessions.
+| sort by TotalChallenges desc

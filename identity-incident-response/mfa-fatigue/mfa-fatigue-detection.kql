@@ -1,0 +1,23 @@
+// Hand-written to match the style sigma-cli + the azuread-table-mappings
+// pipeline would produce, not run through `make convert`. This rule and its
+// case study live in identity-incident-response/, outside the tracked
+// sigma-rules/*.yml glob (same reasoning as guid-triage/ and bec-phishing/,
+// see this repo's root README), so there is no entry for it under
+// kql-conversions/generated/. The Sigma rule at
+// mfa-fatigue-detection.yml is still the source of truth for the per-event
+// condition below; the aggregation is added by hand, same gap documented in
+// kql-conversions/generated/password-spray.kql.
+SigninLogs
+| where AuthenticationRequirement == "multiFactorAuthentication"
+| where ResultType in ("500121", "50074")
+| summarize
+    ChallengeCount = count(),
+    ResultTypesSeen = make_set(ResultType),
+    FirstChallenge = min(TimeGenerated),
+    LastChallenge = max(TimeGenerated),
+    IPAddresses = make_set(IPAddress, 10),
+    AppsSeen = make_set(AppDisplayName, 10)
+    by UserPrincipalName, bin(TimeGenerated, 10m)
+| extend WindowMinutes = datetime_diff('minute', LastChallenge, FirstChallenge)
+| where ChallengeCount >= 5   // tune this threshold against your own traffic before enabling
+| sort by ChallengeCount desc

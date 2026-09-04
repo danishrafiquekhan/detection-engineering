@@ -1,0 +1,41 @@
+title: Repeated MFA Push Denials Consistent With MFA Fatigue ("Push Bombing")
+id: 8a2d4f6b-1c3e-4b5a-9d7f-2e3a4b5c6d7e
+status: experimental
+description: >
+  Flags repeated MFA challenge failures for the same user in a short window,
+  the per-event signature of an MFA fatigue / push bombing attack: an
+  attacker who already has a valid password triggers push notification
+  after push notification, hoping the user approves one out of annoyance,
+  confusion, or a fat-thumbed tap, rather than defeating MFA cryptographically.
+  This rule expresses the per-event condition only, a single denied or
+  timed-out MFA challenge is completely normal on its own. The "many
+  challenges, one user, short window" aggregation that actually makes this
+  suspicious is added in the KQL layer, same gap as password-spray.yml, see
+  the generated .kql file for the summarize clause added by hand.
+references:
+  - https://attack.mitre.org/techniques/T1621/
+  - https://attack.mitre.org/techniques/T1110/
+  - https://learn.microsoft.com/entra/identity/authentication/how-to-mfa-number-match
+author: Danish Khan
+date: 2026-09-04
+tags:
+  - attack.credential-access
+  - attack.t1621
+  - attack.t1110
+logsource:
+  category: authentication
+  product: azure
+  service: signinlogs
+detection:
+  selection:
+    ResultType:
+      - 500121  # Authentication failed during strong authentication request (user denied the MFA prompt)
+      - 50074   # Strong authentication is required, but the challenge was not satisfied (timeout / no response)
+  filter:
+    AuthenticationRequirement: 'multiFactorAuthentication'
+  condition: selection and filter
+falsepositives:
+  - A user genuinely fumbling their own authenticator app or losing signal mid-push, once or twice, not repeatedly
+  - A help desk or IT admin running through a legitimate MFA re-registration or troubleshooting session
+  - Conditional Access policy changes that temporarily re-prompt a whole population for MFA at once (correlate by looking for the same pattern across many unrelated users, not one user, before treating it as fatigue)
+level: high

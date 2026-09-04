@@ -1,0 +1,58 @@
+// Proactive hunt, analyst-run, not alert-triggered, and deliberately
+// independent of sigma-rules/impossible-travel.yml's own logic. That rule
+// (and its generated KQL at kql-conversions/generated/impossible-travel.kql)
+// fires purely on Azure AD Identity Protection's own RiskEventTypes field,
+// which means it only ever sees what Identity Protection already decided
+// to flag. This hunt does the geo-velocity math itself, straight from
+// coordinates in SigninLogs, so it can surface impossible-travel-shaped
+// pairs Identity Protection's own scoring missed or scored below its
+// flagging bar. Complementary to the alerting rule, not a replacement,
+// and not de-duplicated against it here, cross-reference RiskEventTypes on
+// any hit below before treating it as new.
+//
+// Not validated against real sign-in data. The 900 km/h speed threshold
+// (comfortably above commercial flight speed) and 7-day lookback are
+// starting points borrowed from the same logic as the skeleton hunt this
+// was built from, not tuned against real traffic.
+let lookback = 7d;
+let speedThresholdKmh = 900;
+SigninLogs
+| where TimeGenerated > ago(lookback)
+| where ResultType == 0
+| project
+    UserPrincipalName,
+    TimeGenerated,
+    IPAddress,
+    Location,
+    RiskEventTypes,
+    Latitude = todouble(LocationDetails.geoCoordinates.latitude),
+    Longitude = todouble(LocationDetails.geoCoordinates.longitude)
+| order by UserPrincipalName asc, TimeGenerated asc
+| extend
+    PrevTime = prev(TimeGenerated),
+    PrevIP = prev(IPAddress),
+    PrevLocation = prev(Location),
+    PrevLat = prev(Latitude),
+    PrevLong = prev(Longitude),
+    PrevUser = prev(UserPrincipalName)
+| where PrevUser == UserPrincipalName and isnotnull(PrevTime)
+| extend
+    DistanceKm = geo_distance_2points(Longitude, Latitude, PrevLong, PrevLat) / 1000,
+    TimeDiffHours = datetime_diff('minute', TimeGenerated, PrevTime) / 60.0
+| where TimeDiffHours > 0
+| extend SpeedKmh = DistanceKm / TimeDiffHours
+| where SpeedKmh > speedThresholdKmh
+| project
+    UserPrincipalName,
+    TimeGenerated,
+    PrevTime,
+    TimeDiffHours,
+    DistanceKm,
+    SpeedKmh,
+    IPAddress,
+    PrevIP,
+    Location,
+    PrevLocation,
+    RiskEventTypes   // empty/null here is the interesting case: a physically
+                      // impossible pair Identity Protection did not flag
+| sort by SpeedKmh desc
