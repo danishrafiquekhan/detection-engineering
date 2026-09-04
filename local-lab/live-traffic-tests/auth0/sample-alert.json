@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-04T20:49:45.686+0000",
+  "rule": {
+    "level": 6,
+    "description": "Auth0: failed client-credentials token exchange (M2M app rejected — bad secret or missing/insufficient grant)",
+    "id": "100026",
+    "firedtimes": 1,
+    "groups": ["local", "auth0", "soc-lab", "authentication_failed"]
+  },
+  "agent": { "id": "000", "name": "wazuh.manager" },
+  "decoder": { "name": "json" },
+  "data": {
+    "date": "2026-09-04T20:49:33.147Z",
+    "type": "feccft",
+    "description": "Unauthorized",
+    "client_id": "REDACTED_M2M_CLIENT_ID",
+    "client_name": "Default App",
+    "ip": "203.0.113.42",
+    "client_ip": "203.0.113.42",
+    "user_agent": "curl 8.7.1 / Other 0.0.0",
+    "hostname": "example-tenant.us.auth0.com",
+    "audience": "https://example-tenant.us.auth0.com/api/v2/",
+    "scope": "null",
+    "environment_name": "prod-us-5",
+    "log_id": "REDACTED_LOG_ID",
+    "tenant_name": "example-tenant"
+  },
+  "location": "/var/log/auth0/auth0-events.log"
+}

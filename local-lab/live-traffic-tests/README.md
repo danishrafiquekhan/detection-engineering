@@ -1,4 +1,4 @@
-**Three real traffic sources, actually feeding the Wazuh setup above**
+**Four real traffic sources, actually feeding the Wazuh setup above**
 
 The Wazuh stack in `../` runs, but on its own it has nothing to look at. These folders wire in real, live traffic — not fixture data — so the local-lab claim ("what I actually run to test something end-to-end") is true rather than aspirational.
 
@@ -7,6 +7,8 @@ The Wazuh stack in `../` runs, but on its own it has nothing to look at. These f
 **mysql/** — `setup-mysql.sh` brings up a real MySQL 8 container with error logging on and `general_log` off by default (see below for why). `toggle-general-log.sh {on|off|rotate}` turns query logging on right before generating a test scenario, off right after, and rotates the file if it's grown past 5MB. `relay.py` tails those logs and reformats matching lines to fit Wazuh's *built-in* `mysql_log` decoder and rule set (`ruleset/decoders/0150-mysql_decoders.xml`, `ruleset/rules/0295-mysql_rules.xml`) — no custom rule needed here, Wazuh already ships real MySQL detection logic, including PCI DSS/GDPR/HIPAA/NIST 800-53 control mapping on the alert. `sample-alert.json` is a real alert from four deliberate failed-login attempts.
 
 **suricata/** — network IDS, not application-level logs like the other two. Fixes two real, silent misconfigurations that had stopped it from ever generating an alert (`eve-log` nested under the wrong config key, `HOME_NET`/`EXTERNAL_NET` never defined), and works around a real Docker-on-macOS networking limit by generating live inter-container traffic on a dedicated bridge network instead of trying to sniff the host's actual network. Uses Wazuh's *built-in* Suricata decoder/rule set too — no custom rule needed, same as MySQL. See that folder's README for the full story.
+
+**auth0/** — a real identity provider's System Log, not an app or a database. `poll_auth0_logs.py` checkpoint-polls Auth0's Management API (log-ID-based, not file-tailing, since Auth0's log API works that way) into a file Wazuh watches. Custom `local_rules.xml` again, same reason as Cloudflare — no built-in Auth0 decoder. Also documents a real least-privilege lesson: the M2M app got authorized with nearly the entire Management API permission set by default, fixed by narrowing the client-grant's scope down to just `read:logs`/`read:logs_users` via the API itself. See that folder's README for the full story, including the real credential-exchange failure that verified the rule fires.
 
 **Why these are on-demand scripts, not always-on services**
 

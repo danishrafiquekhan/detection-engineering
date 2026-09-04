@@ -15,6 +15,8 @@ Dashboard's at https://localhost, the indexer API at :9200.
 
 I went back and forth on whether to convert my existing sign-in rules to run against Wazuh instead, and decided against it — Wazuh is built for host and network telemetry (agents, file integrity checks, Suricata alerts), not Entra ID cloud logs. Trying to force an Azure AD sign-in rule onto it would've been a fake fit just so I could say "it runs." The KQL rules stay written for Sentinel because that's literally the tool the job postings ask about. Wazuh's job here is different: it's what I actually run when I want to test something end-to-end without waiting on a real Azure tenant. The Suricata setup I already had (`~/securitylab/suricata`) is the obvious next thing to feed into it.
 
+(One nuance worth calling out: Auth0 in `live-traffic-tests/auth0/` is also a cloud identity provider, and it *does* feed into Wazuh — that's not a contradiction of the above. Auth0's System Log has a plain REST API built for polling, the same shape as Cloudflare's request logs; Entra ID's real ingestion path is Sentinel's own analytics rules against `SigninLogs`/`AuditLogs`, a fundamentally different mechanism. Wiring in a pollable REST API is a normal custom-rule integration; faking Entra's native ingestion pipeline on top of Wazuh would still be the fake fit described above.)
+
 **The annoying bug I hit**
 
 Wazuh's own cert generator (`wazuh-certs-generator`) locks its output folder read-only partway through the run, before it finishes writing two of the cert files it needs. First time I ran it, it just failed on `root-ca-manager.pem`/`.key` with a permission error and I assumed I'd done something wrong. Turns out those two files are just a copy of the same root CA the single-node setup already generated — there's no actual second CA involved — so the fix was to copy them over by hand instead of fighting the generator to finish on its own.
@@ -26,8 +28,8 @@ Changed the dashboard/API password away from the documented `admin`/`SecretPassw
 
 **Actually feeding it real traffic**
 
-`live-traffic-tests/` wires in three real, live sources — a Cloudflare Pages site, a MySQL container, and now Suricata — instead of static fixtures. All three produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
+`live-traffic-tests/` wires in four real, live sources — a Cloudflare Pages site, a MySQL container, Suricata, and now Auth0 — instead of static fixtures. All four produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
 
 **Alerts now actually become cases**
 
-`thehive-integration/` closes the gap that existed since this lab first stood up TheHive + Cortex alongside Wazuh: a real alert firing now automatically creates a real TheHive case, verified across all three live sources above. See that folder's README for how, and for the one real (and harmless) false positive it surfaced along the way.
+`thehive-integration/` closes the gap that existed since this lab first stood up TheHive + Cortex alongside Wazuh: a real alert firing now automatically creates a real TheHive case, verified across three of the four live sources above (Cloudflare, MySQL, Suricata — Auth0 landed after this integration was last checked against TheHive, and Wazuh correctly grouped it under `authentication_failed`, the same group the other three use, so it should behave identically). See that folder's README for how, and for the one real (and harmless) false positive it surfaced along the way.

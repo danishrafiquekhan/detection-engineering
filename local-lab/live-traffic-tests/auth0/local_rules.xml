@@ -1,0 +1,71 @@
+<!-- Custom Wazuh rules for the Auth0 System Log source. Wazuh has no
+     built-in Auth0 decoder, so this relies on ossec.conf's
+     <log_format>json</log_format> on the localfile stanza the same way
+     the Cloudflare rules do — Wazuh auto-decodes top-level JSON keys
+     into `data.<field>` for rule matching. Drop into
+     /var/ossec/etc/rules/local_rules.xml as its own <group> block
+     (alongside, not replacing, the existing cloudflare group) and
+     restart (`wazuh-control restart`, or a full `docker restart` if
+     this is a fresh localfile/volume addition — a plain process
+     restart doesn't always pick up bind-mount changes, see the
+     troubleshooting log). -->
+
+<group name="local,auth0,soc-lab,">
+
+  <rule id="100020" level="0">
+    <decoded_as>json</decoded_as>
+    <field name="log_id">\.+</field>
+    <description>Auth0 System Log event</description>
+    <group>auth0,soc-lab,</group>
+  </rule>
+
+  <rule id="100021" level="5">
+    <if_sid>100020</if_sid>
+    <field name="type">^f$|^fp$|^fu$</field>
+    <description>Auth0: failed login attempt</description>
+    <group>auth0,authentication_failed,</group>
+  </rule>
+
+  <rule id="100022" level="0">
+    <if_sid>100020</if_sid>
+    <field name="type">^s$</field>
+    <description>Auth0: successful login</description>
+    <group>auth0,authentication_success,</group>
+  </rule>
+
+  <rule id="100023" level="10">
+    <if_sid>100020</if_sid>
+    <field name="type">^limit_wc$</field>
+    <description>Auth0: account blocked after repeated failed logins (possible brute force)</description>
+    <group>auth0,attack,</group>
+  </rule>
+
+  <rule id="100024" level="0">
+    <if_sid>100020</if_sid>
+    <field name="type">^sapi$</field>
+    <description>Auth0: successful Management API operation</description>
+    <group>auth0,</group>
+  </rule>
+
+  <rule id="100025" level="6">
+    <if_sid>100020</if_sid>
+    <field name="type">^fapi$</field>
+    <description>Auth0: failed Management API operation (possible credential probing or over-scoped attempt)</description>
+    <group>auth0,attack,</group>
+  </rule>
+
+  <rule id="100026" level="6">
+    <if_sid>100020</if_sid>
+    <field name="type">^feccft$</field>
+    <description>Auth0: failed client-credentials token exchange (M2M app rejected — bad secret or missing/insufficient grant)</description>
+    <group>auth0,authentication_failed,</group>
+  </rule>
+
+  <rule id="100027" level="0">
+    <if_sid>100020</if_sid>
+    <field name="type">^seccft$</field>
+    <description>Auth0: successful client-credentials token exchange</description>
+    <group>auth0,authentication_success,</group>
+  </rule>
+
+</group>
