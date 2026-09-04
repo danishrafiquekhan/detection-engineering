@@ -1,0 +1,41 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "[172.16.0.0/12,192.168.0.0/16,10.0.0.0/8]"
+    EXTERNAL_NET: "!$HOME_NET"
+  port-groups:
+    HTTP_PORTS: "80"
+    HTTPS_PORTS: "443"
+    SSH_PORTS: "22"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSL_PORTS: "443"
+
+logging:
+  default-log-level: info
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - dns
+        - http
+        - tls
+        - flow
+
+af-packet:
+  - interface: eth0
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+
+app-layer:
+  protocols:
+    modbus:
+      enabled: no
+    dnp3:
+      enabled: no

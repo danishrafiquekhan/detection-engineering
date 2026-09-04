@@ -21,9 +21,13 @@ Wazuh's own cert generator (`wazuh-certs-generator`) locks its output folder rea
 
 Also worth knowing: there's no arm64 build of Wazuh yet, so on my M-series Mac it's running under x86 emulation. Takes noticeably longer to come up healthy than you'd expect from watching `docker ps`.
 
-**One thing to actually do**
-Change the dashboard password. It ships with `admin`/`SecretPassword` as the documented default, which is fine for getting started but not something to leave sitting there.
+**One thing I actually did**
+Changed the dashboard/API password away from the documented `admin`/`SecretPassword` default. Not scriptable through the obvious API path — the `admin` user is a reserved OpenSearch security-plugin account that rejects direct password-change API calls, and editing `internal_users.yml` alone doesn't take effect on an already-initialized cluster. The real fix: generate a new bcrypt hash with the indexer's own `hash.sh`, update `internal_users.yml`, then push it into the running cluster's security index with `securityadmin.sh` — that's the only step that actually applies it. A plain container restart alone changes nothing here.
 
 **Actually feeding it real traffic**
 
-`live-traffic-tests/` wires in two real, live sources (a Cloudflare Pages site and a MySQL container) instead of static fixtures. Both produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
+`live-traffic-tests/` wires in three real, live sources — a Cloudflare Pages site, a MySQL container, and now Suricata — instead of static fixtures. All three produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
+
+**Alerts now actually become cases**
+
+`thehive-integration/` closes the gap that existed since this lab first stood up TheHive + Cortex alongside Wazuh: a real alert firing now automatically creates a real TheHive case, verified across all three live sources above. See that folder's README for how, and for the one real (and harmless) false positive it surfaced along the way.

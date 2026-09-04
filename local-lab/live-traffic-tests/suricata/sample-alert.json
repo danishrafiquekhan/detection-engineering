@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-09-04T19:54:54.043+0000",
+  "rule": {
+    "level": 3,
+    "description": "Suricata: Alert - ET SCAN RDP Connection Attempt from Nmap",
+    "id": "86601",
+    "firedtimes": 1,
+    "groups": ["ids", "suricata"]
+  },
+  "agent": { "id": "000", "name": "wazuh.manager" },
+  "decoder": { "name": "json" },
+  "data": {
+    "timestamp": "2026-09-04T19:54:53.912778+0000",
+    "event_type": "alert",
+    "src_ip": "203.0.113.10",
+    "src_port": "42036",
+    "dest_ip": "203.0.113.11",
+    "dest_port": "3389",
+    "proto": "TCP",
+    "alert": {
+      "action": "allowed",
+      "signature_id": "2036252",
+      "signature": "ET SCAN RDP Connection Attempt from Nmap",
+      "category": "Detection of a Network Scan",
+      "severity": "3"
+    }
+  },
+  "location": "/var/log/suricata/eve.json"
+}
