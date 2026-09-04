@@ -1,4 +1,4 @@
-# LLM-assisted triage
+**LLM-assisted triage**
 
 Three small scripts, all using Claude:
 - `alert_summarizer.py` — reads a raw alert JSON and spits out a summary an analyst can actually read in 5 seconds instead of parsing the raw fields
@@ -7,10 +7,10 @@ Three small scripts, all using Claude:
 
 This isn't automation replacing a human, it's a triage aid. Important distinction and I built the prompts around enforcing it.
 
-## Cost, honestly
+**Cost, honestly**
 Everything else in this portfolio (Wazuh, TheHive, LocalStack, Terraform) is genuinely free. This isn't — API calls cost a small amount per token. Not going to pretend otherwise just because the rest of the lab is free. It's cheap to test with (fractions of a cent per call for something this small) but it's not zero.
 
-## Running it
+**Running it**
 ```bash
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -22,14 +22,14 @@ python3 investigation_agent.py sample-structured-alert.json
 ```
 The sample JSON files use made-up hostnames and the `198.51.100.0/24` range that's reserved specifically for documentation examples — nothing real in there, safe to run against.
 
-## Why the prompts are written the way they are
+**Why the prompts are written the way they are**
 First draft of the summarizer prompt just said "summarize this alert." Turns out an LLM asked to summarize an alert will also happily hand you a verdict you didn't ask for — "this looks benign," "probably a false positive" — which is exactly the kind of thing a triage *aid* shouldn't be doing on its own. Had to explicitly tell it not to decide anything or recommend an action. Same idea in the timeline script — it's forced to end every output with an "UNVERIFIED DRAFT, human review required" line so nobody downstream mistakes a first-pass narrative for something validated.
 
 Small thing, but it's the actual design decision here. The API call itself is maybe five lines.
 
 `investigation_agent.py` uses the same discipline, one step further: its system prompt explicitly rules out containment/remediation actions too, not just a verdict, because "recommend a next step" is a more open door than "summarize this" and I'd rather close that off in the prompt than find out the model walked through it.
 
-## Concept: what a real pipeline version of this would look like
+**Concept: what a real pipeline version of this would look like**
 
 These three scripts each call the Claude API directly against a JSON file sitting on disk. A real deployment of this idea would not look like that, it would look something like:
 
