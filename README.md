@@ -1,5 +1,7 @@
 **detection-engineering**
 
+[![CI](https://github.com/danishrafiquekhan/detection-engineering/actions/workflows/ci.yml/badge.svg)](https://github.com/danishrafiquekhan/detection-engineering/actions/workflows/ci.yml)
+
 Sigma rules mapped to ATT&CK, converted to KQL for Sentinel. This is the core of the study plan. Everything else in my portfolio kind of orbits around it.
 
 I am doing it this way (Sigma first, KQL second) on purpose. Writing the detection logic in Sigma forces me to think about the actual condition separately from "how do I query this in KQL," and it means the same rule could theoretically target Splunk or Elastic later without rewriting the logic from scratch. Whether that portability ever matters for me personally, I do not know yet, but it is how real detection engineering teams do it, so I am doing it too.
