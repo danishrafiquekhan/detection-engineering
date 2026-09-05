@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>SOC Lab — Live Status</title>
+<style>
+  body { background:#0d1117; color:#c9d1d9; font-family:-apple-system,Menlo,monospace; margin:0; padding:24px; }
+  h1 { font-size:18px; color:#58a6ff; margin:0 0 4px; }
+  .sub { color:#8b949e; font-size:12px; margin-bottom:20px; }
+  .grid { display:grid; grid-template-columns:280px 1fr; gap:24px; align-items:start; }
+  .card { background:#161b22; border:1px solid #30363d; border-radius:6px; padding:14px; }
+  .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.05em; color:#8b949e; margin:0 0 10px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #21262d; font-size:13px; }
+  .row:last-child { border-bottom:none; }
+  .dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px; }
+  .dot.live { background:#3fb950; box-shadow:0 0 6px #3fb95099; }
+  .dot.stale { background:#d29922; }
+  .dot.none { background:#484f58; }
+  .dot.up { background:#3fb950; }
+  .dot.down { background:#f85149; }
+  .ts { color:#8b949e; font-size:11px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; color:#8b949e; font-weight:normal; font-size:11px; text-transform:uppercase; padding:6px 8px; border-bottom:1px solid #30363d; }
+  td { padding:6px 8px; border-bottom:1px solid #21262d; vertical-align:top; }
+  .lvl { font-weight:bold; border-radius:3px; padding:1px 6px; font-size:11px; }
+  .lvl-hi { background:#f8514933; color:#f85149; }
+  .lvl-mid { background:#d2992233; color:#d29922; }
+  .lvl-lo { background:#3fb95033; color:#3fb950; }
+  .flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background:#58a6ff33; } to { background:transparent; } }
+  #feed-empty { color:#8b949e; font-size:13px; padding:12px 0; }
+</style>
+</head>
+<body>
+  <h1>SOC Lab — Live Status</h1>
+  <div class="sub" id="conn-status">connecting…</div>
+  <div class="grid">
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <h2>Detection sources</h2>
+        <div id="sources"></div>
+      </div>
+      <div class="card">
+        <h2>Containers</h2>
+        <div id="containers"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Live alert feed</h2>
+      <table>
+        <thead><tr><th>Time</th><th>Source</th><th>Level</th><th>Rule</th></tr></thead>
+        <tbody id="feed"></tbody>
+      </table>
+      <div id="feed-empty">No alerts yet — run a test scenario against any live source.</div>
+    </div>
+  </div>
+
+<script>
+const SOURCES = ["Cloudflare Pages","MySQL","Suricata","Auth0","LocalStack","Cowrie honeypot"];
+const sourcesEl = document.getElementById("sources");
+const containersEl = document.getElementById("containers");
+const feedEl = document.getElementById("feed");
+const feedEmptyEl = document.getElementById("feed-empty");
+const connEl = document.getElementById("conn-status");
+
+let lastSeen = {};
+let containerStatus = {};
+
+function levelClass(level) {
+  if (level >= 10) return "lvl-hi";
+  if (level >= 6) return "lvl-mid";
+  return "lvl-lo";
+}
+
+function fmtAgo(iso) {
+  if (!iso) return "never";
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const s = Math.floor(diffMs / 1000);
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  return Math.floor(s/3600) + "h ago";
+}
+
+function renderSources() {
+  sourcesEl.innerHTML = SOURCES.map(name => {
+    const entry = lastSeen[name];
+    let dot = "none", label = "no alerts yet";
+    if (entry) {
+      const ageMin = (Date.now() - new Date(entry.time).getTime()) / 60000;
+      dot = ageMin < 10 ? "live" : "stale";
+      label = fmtAgo(entry.time);
+    }
+    return `<div class="row"><span><span class="dot ${dot}"></span>${name}</span><span class="ts">${label}</span></div>`;
+  }).join("");
+}
+
+function renderContainers() {
+  const names = Object.keys(containerStatus);
+  if (!names.length) { containersEl.innerHTML = '<div class="ts">waiting for docker ps…</div>'; return; }
+  containersEl.innerHTML = names.map(name => {
+    const status = containerStatus[name];
+    const up = /^up/i.test(status);
+    return `<div class="row"><span><span class="dot ${up?'up':'down'}"></span>${name}</span><span class="ts">${status}</span></div>`;
+  }).join("");
+}
+
+function prependAlert(a) {
+  feedEmptyEl.style.display = "none";
+  const tr = document.createElement("tr");
+  tr.className = "flash";
+  tr.innerHTML = `<td class="ts">${new Date(a.time).toLocaleTimeString()}</td>` +
+    `<td>${a.source}</td>` +
+    `<td><span class="lvl ${levelClass(a.level)}">${a.level}</span></td>` +
+    `<td>${a.description}</td>`;
+  feedEl.prepend(tr);
+  while (feedEl.rows.length > 50) feedEl.deleteRow(-1);
+}
+
+async function loadSnapshot() {
+  const res = await fetch("/snapshot");
+  const data = await res.json();
+  lastSeen = data.sources || {};
+  containerStatus = data.containers || {};
+  renderSources();
+  renderContainers();
+  if (data.alerts && data.alerts.length) {
+    feedEmptyEl.style.display = "none";
+    data.alerts.forEach(a => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="ts">${new Date(a.time).toLocaleTimeString()}</td>` +
+        `<td>${a.source}</td>` +
+        `<td><span class="lvl ${levelClass(a.level)}">${a.level}</span></td>` +
+        `<td>${a.description}</td>`;
+      feedEl.appendChild(tr);
+    });
+  }
+}
+
+function connect() {
+  const es = new EventSource("/events");
+  es.onopen = () => connEl.textContent = "connected — live";
+  es.onerror = () => { connEl.textContent = "disconnected — retrying…"; };
+  es.onmessage = (e) => {
+    const event = JSON.parse(e.data);
+    if (event.type === "alert") {
+      lastSeen[event.data.source] = event.data;
+      renderSources();
+      prependAlert(event.data);
+    } else if (event.type === "containers") {
+      containerStatus = event.data;
+      renderContainers();
+    }
+  };
+}
+
+setInterval(renderSources, 15000); // keep "Xm ago" / stale-dot fresh even with no new alerts
+loadSnapshot();
+connect();
+</script>
+</body>
+</html>

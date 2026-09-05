@@ -28,7 +28,11 @@ Changed the dashboard/API password away from the documented `admin`/`SecretPassw
 
 **Actually feeding it real traffic**
 
-`live-traffic-tests/` wires in four real, live sources — a Cloudflare Pages site, a MySQL container, Suricata, and now Auth0 — instead of static fixtures. All four produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
+`live-traffic-tests/` wires in six real, live sources — a Cloudflare Pages site, a MySQL container, Suricata, Auth0, LocalStack, and a Cowrie SSH honeypot — instead of static fixtures. All six produced real alerts. They're intentionally on-demand scripts, not always-on services — see that folder's README for exactly why.
+
+**Watching it happen live**
+
+`dashboard/` is a small loopback-only web page (`python3 dashboard/monitor_server.py`, no dependencies) that shows which of those six sources have alerted recently and streams new alerts as they land in real time, plus the health of the containers behind all of this. See that folder's README for how it reads Wazuh's own alert log without needing a new volume mount.
 
 **Alerts now actually become cases**
 
