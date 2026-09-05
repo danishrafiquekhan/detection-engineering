@@ -1,0 +1,51 @@
+
+<group name="local,cowrie,honeypot,">
+
+  <rule id="100040" level="0">
+    <decoded_as>json</decoded_as>
+    <field name="sensor">\.+</field>
+    <description>Cowrie honeypot event</description>
+    <group>cowrie,honeypot,</group>
+  </rule>
+
+  <rule id="100041" level="5">
+    <if_sid>100040</if_sid>
+    <field name="eventid">cowrie.login.failed</field>
+    <description>Cowrie honeypot: failed login attempt (credential $(username)/$(password))</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>attack,authentication_failed,</group>
+  </rule>
+
+  <rule id="100042" level="10">
+    <if_sid>100040</if_sid>
+    <field name="eventid">cowrie.login.success</field>
+    <description>Cowrie honeypot: successful login with default/weak credentials (attacker believes they have shell access)</description>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+    <group>attack,authentication_success,</group>
+  </rule>
+
+  <rule id="100043" level="12">
+    <if_sid>100040</if_sid>
+    <field name="eventid">cowrie.command.input</field>
+    <description>Cowrie honeypot: attacker executed a command inside the fake shell ($(input))</description>
+    <mitre>
+      <id>T1059</id>
+    </mitre>
+    <group>attack,</group>
+  </rule>
+
+  <rule id="100044" level="7">
+    <if_sid>100040</if_sid>
+    <field name="eventid">cowrie.session.file_download</field>
+    <description>Cowrie honeypot: attacker attempted to download a file onto the honeypot</description>
+    <mitre>
+      <id>T1105</id>
+    </mitre>
+    <group>attack,</group>
+  </rule>
+
+</group>
