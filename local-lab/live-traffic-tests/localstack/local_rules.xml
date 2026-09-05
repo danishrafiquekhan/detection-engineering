@@ -1,0 +1,59 @@
+<!-- Custom Wazuh rules for LocalStack's own request log. Wazuh has no
+     built-in AWS/CloudTrail decoder, same situation as the Cloudflare
+     and Auth0 sources — these rules match on the plain-text operation
+     names LocalStack itself logs (e.g. "AWS iam.CreateUser => 200"),
+     not a structured CloudTrail event, since LocalStack Community
+     doesn't generate CloudTrail-format logs at all (a Pro-only
+     feature — see aws-identity-detection's own documented gap on
+     this). Drop into /var/ossec/etc/rules/local_rules.xml as its own
+     <group> block and restart the manager to pick it up. -->
+
+<group name="local,localstack,aws-identity,">
+
+  <rule id="100030" level="0">
+    <match>localstack.request.aws</match>
+    <description>LocalStack: AWS API call (simulated)</description>
+    <group>localstack,soc-lab,</group>
+  </rule>
+
+  <rule id="100031" level="9">
+    <if_sid>100030</if_sid>
+    <match>AWS iam.CreateAccessKey</match>
+    <description>Valid Accounts (Cloud): new IAM access key created - possible persistence via new credential</description>
+    <mitre>
+      <id>T1078.004</id>
+    </mitre>
+    <group>localstack,attack,persistence,</group>
+  </rule>
+
+  <rule id="100032" level="7">
+    <if_sid>100030</if_sid>
+    <match>AWS iam.CreateUser</match>
+    <description>Valid Accounts (Cloud): new IAM user created</description>
+    <mitre>
+      <id>T1078.004</id>
+    </mitre>
+    <group>localstack,attack,persistence,</group>
+  </rule>
+
+  <rule id="100033" level="7">
+    <if_sid>100030</if_sid>
+    <match>AWS iam.AttachUserPolicy</match>
+    <description>Valid Accounts (Cloud): IAM policy attached to a user - possible privilege escalation or persistence</description>
+    <mitre>
+      <id>T1078.004</id>
+    </mitre>
+    <group>localstack,attack,persistence,</group>
+  </rule>
+
+  <rule id="100034" level="7">
+    <if_sid>100030</if_sid>
+    <match>AWS iam.CreateLoginProfile</match>
+    <description>Valid Accounts (Cloud): console login profile created for an IAM user - possible persistence via console access</description>
+    <mitre>
+      <id>T1078.004</id>
+    </mitre>
+    <group>localstack,attack,persistence,</group>
+  </rule>
+
+</group>

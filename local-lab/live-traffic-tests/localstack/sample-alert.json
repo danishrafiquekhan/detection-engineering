@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-09-05T07:45:23.599+0000",
+  "rule": {
+    "level": 9,
+    "description": "Valid Accounts (Cloud): new IAM access key created - possible persistence via new credential",
+    "id": "100031",
+    "mitre": { "id": ["T1078.004"], "technique": ["Cloud Accounts"] },
+    "groups": ["local", "localstack", "aws-identity", "attack", "persistence"]
+  },
+  "full_log": "AWS iam.CreateAccessKey => 200",
+  "location": "/var/log/localstack/localstack-requests.log"
+}

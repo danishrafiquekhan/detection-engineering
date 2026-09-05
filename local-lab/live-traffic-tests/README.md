@@ -1,4 +1,4 @@
-**Four real traffic sources, actually feeding the Wazuh setup above**
+**Five real traffic sources, actually feeding the Wazuh setup above**
 
 The Wazuh stack in `../` runs, but on its own it has nothing to look at. These folders wire in real, live traffic — not fixture data — so the local-lab claim ("what I actually run to test something end-to-end") is true rather than aspirational.
 
@@ -9,6 +9,8 @@ The Wazuh stack in `../` runs, but on its own it has nothing to look at. These f
 **suricata/** — network IDS, not application-level logs like the other two. Fixes two real, silent misconfigurations that had stopped it from ever generating an alert (`eve-log` nested under the wrong config key, `HOME_NET`/`EXTERNAL_NET` never defined), and works around a real Docker-on-macOS networking limit by generating live inter-container traffic on a dedicated bridge network instead of trying to sniff the host's actual network. Uses Wazuh's *built-in* Suricata decoder/rule set too — no custom rule needed, same as MySQL. See that folder's README for the full story.
 
 **auth0/** — a real identity provider's System Log, not an app or a database. `poll_auth0_logs.py` checkpoint-polls Auth0's Management API (log-ID-based, not file-tailing, since Auth0's log API works that way) into a file Wazuh watches. Custom `local_rules.xml` again, same reason as Cloudflare — no built-in Auth0 decoder. Also documents a real least-privilege lesson: the M2M app got authorized with nearly the entire Management API permission set by default, fixed by narrowing the client-grant's scope down to just `read:logs`/`read:logs_users` via the API itself. See that folder's README for the full story, including the real credential-exchange failure that verified the rule fires.
+
+**localstack/** — real cloud IAM operations, not an app, database, IDS, or IdP. Exists specifically because T1078.004's official Atomic Red Team tests all need real Azure/GCP cloud resource creation with no benign local variant — adapts the same "valid cloud account establishes persistence" concept using AWS IAM against LocalStack instead. Wazuh has no built-in AWS/CloudTrail decoder (and LocalStack Community doesn't even generate CloudTrail-format logs, a real, separately-documented gap in `aws-identity-detection`), so `local_rules.xml` matches directly on the plain-text operation names in LocalStack's own request log. See that folder's README and `atomic-red-team-validation`'s T1078.004 case study for the full story, including an explicit statement of what this adapted test does and doesn't prove relative to the official one.
 
 **Why these are on-demand scripts, not always-on services**
 
