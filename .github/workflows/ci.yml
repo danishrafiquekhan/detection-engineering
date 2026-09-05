@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install sigma-cli
+        run: pipx install sigma-cli && pipx inject sigma-cli pysigma-backend-kusto
+
+      - name: Validate every Sigma rule converts cleanly
+        run: |
+          mkdir -p /tmp/sigma-check
+          for f in sigma-rules/*.yml; do
+            echo "Converting $f"
+            sigma convert -t kusto \
+              -p kql-conversions/pipelines/azuread-table-mappings.yml -p sentinel_asim \
+              -o "/tmp/sigma-check/$(basename "$f" .yml).kql" "$f"
+          done
+
+      - name: Run log-correlation test harness
+        run: make test
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
