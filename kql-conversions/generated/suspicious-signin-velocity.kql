@@ -1,2 +1,16 @@
+// Base condition below is what sigma-cli generates directly from the Sigma
+// rule. The aggregation (same account, two or more distinct countries,
+// short window) is added by hand here — same gap and same reason as
+// password-spray.kql, Sigma's single-rule spec has no clean way to express
+// "distinct count of X grouped by Y over a timeframe". This aggregation
+// layer didn't exist here for a while — the query matched every successful
+// sign-in with no velocity logic at all, only caught by actually running
+// the query against synthetic data (see execution-verification/) rather
+// than just syntax-checking it.
 SigninLogs
 | where ResultType == 0
+| summarize
+    Countries = make_set(Location, 5),
+    CountryCount = dcount(Location)
+    by UserPrincipalName, bin(TimeGenerated, 30m)
+| where CountryCount >= 2   // tune window/threshold against your own traffic before enabling

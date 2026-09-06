@@ -4,7 +4,16 @@ status: experimental
 description: >
   Detects a single account signing in from two different countries within a
   short time window, which is not physically possible and typically indicates
-  credential compromise or a shared/leaked session token.
+  credential compromise or a shared/leaked session token. This rule expresses
+  the per-event condition only (a successful sign-in) — the "same account,
+  two distinct countries, short window" aggregation is added in the KQL layer,
+  same reason and same pattern as password-spray.yml: Sigma has no clean
+  single-rule way to express cross-event aggregation. A real gap existed here
+  for a while where that KQL-layer aggregation was never actually added, so
+  the generated query matched every successful sign-in rather than only
+  velocity-anomalous ones — caught and fixed by actually executing the query
+  against synthetic data instead of only syntax-validating it. See the
+  generated .kql file for the summarize clause.
 references:
   - https://attack.mitre.org/techniques/T1078/004/
 author: Danish Khan

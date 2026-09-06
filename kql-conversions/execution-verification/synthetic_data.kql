@@ -1,0 +1,36 @@
+.ingest inline into table SigninLogs <|
+2026-09-06T10:00:00Z,alice@contoso.com,198.51.100.10,0,,US
+2026-09-06T10:01:00Z,bob@contoso.com,198.51.100.11,0,unfamiliarFeatures,US
+2026-09-06T10:02:00Z,carol@contoso.com,203.0.113.5,0,anonymizedIPAddress,US
+2026-09-06T10:03:00Z,dave@contoso.com,192.0.2.20,50053,,US
+2026-09-06T10:03:10Z,eve@contoso.com,192.0.2.20,50126,,US
+2026-09-06T10:03:20Z,frank@contoso.com,192.0.2.20,50053,,US
+2026-09-06T10:03:30Z,grace@contoso.com,192.0.2.20,50126,,US
+2026-09-06T10:03:40Z,heidi@contoso.com,192.0.2.20,50053,,US
+2026-09-06T10:03:50Z,ivan@contoso.com,192.0.2.20,50126,,US
+2026-09-06T10:04:00Z,judy@contoso.com,192.0.2.20,50053,,US
+2026-09-06T10:04:10Z,mallory@contoso.com,192.0.2.20,50126,,US
+2026-09-06T10:04:20Z,niaj@contoso.com,192.0.2.20,50053,,US
+2026-09-06T10:04:30Z,olivia@contoso.com,192.0.2.20,50126,,US
+2026-09-06T14:00:00Z,peggy@contoso.com,192.0.2.30,0,,US
+2026-09-06T14:10:00Z,peggy@contoso.com,203.0.113.40,0,,RU
+2026-09-06T15:00:00Z,victor@contoso.com,198.51.100.50,0,,IE
+2026-09-06T15:05:00Z,victor@contoso.com,198.51.100.51,0,,IE
+
+.ingest inline into table AuditLogs <|
+2026-09-06T11:00:00Z,"Update conditional access policy","{""state"":""enabled""}","",success
+2026-09-06T11:01:00Z,"Update conditional access policy","{""state"":""disabled""}","",success
+2026-09-06T11:02:00Z,"Add member to role","","Global Administrator",success
+2026-09-06T11:03:00Z,"Add member to role","","Helpdesk Administrator",success
+2026-09-06T11:04:00Z,"Consent to application","Mail.ReadWrite",,success
+2026-09-06T11:05:00Z,"Consent to application","User.Read",,success
+
+.ingest inline into table OfficeActivity <|
+2026-09-06T12:00:00Z,FileDownloaded,alice@contoso.com
+2026-09-06T12:01:00Z,FileAccessed,alice@contoso.com
+2026-09-06T12:02:00Z,FileDownloaded,bob@contoso.com
+
+.ingest inline into table imProcessCreate <|
+2026-09-06T13:00:00Z,C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe,"powershell.exe -NoProfile -EncodedCommand VwByAGkAdABlAA=="
+2026-09-06T13:01:00Z,C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe,"powershell.exe -Command Get-Process"
+2026-09-06T13:02:00Z,C:\\Windows\\System32\\notepad.exe,"notepad.exe C:\\temp\\file.txt"

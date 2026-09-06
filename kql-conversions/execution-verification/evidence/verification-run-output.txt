@@ -1,0 +1,34 @@
+=== conditional-access-policy-tampering.kql : OK ===
+  1 row(s) matched
+    ['2026-09-06T11:01:00Z', 'Update conditional access policy', '{"state":"disabled"}', '', 'success']
+
+=== impossible-travel.kql : OK ===
+  2 row(s) matched
+    ['2026-09-06T10:01:00Z', 'bob@contoso.com', '198.51.100.11', '0', 'unfamiliarFeatures', 'US']
+    ['2026-09-06T10:02:00Z', 'carol@contoso.com', '203.0.113.5', '0', 'anonymizedIPAddress', 'US']
+
+=== mass-file-download.kql : OK ===
+  2 row(s) matched
+    ['2026-09-06T12:00:00Z', 'FileDownloaded', 'alice@contoso.com']
+    ['2026-09-06T12:02:00Z', 'FileDownloaded', 'bob@contoso.com']
+
+=== password-spray.kql : OK ===
+  1 row(s) matched
+    ['192.0.2.20', '2026-09-06T10:00:00Z', 10, ['dave@contoso.com', 'eve@contoso.com', 'frank@contoso.com', 'grace@contoso.com', 'heidi@contoso.com', 'ivan@contoso.com', 'judy@contoso.com', 'mallory@contoso.com', 'niaj@contoso.com', 'olivia@contoso.com']]
+
+=== privileged-role-assignment.kql : OK ===
+  1 row(s) matched
+    ['2026-09-06T11:02:00Z', 'Add member to role', '', 'Global Administrator', 'success']
+
+=== suspicious-oauth-consent.kql : OK ===
+  1 row(s) matched
+    ['2026-09-06T11:04:00Z', 'Consent to application', 'Mail.ReadWrite', '', 'success']
+
+=== suspicious-powershell-execution.kql : OK ===
+  1 row(s) matched
+    ['2026-09-06T13:00:00Z', 'C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe', 'powershell.exe -NoProfile -EncodedCommand VwByAGkAdABlAA==']
+
+=== suspicious-signin-velocity.kql : OK ===
+  1 row(s) matched
+    ['peggy@contoso.com', '2026-09-06T14:00:00Z', ['US', 'RU'], 2]
+

@@ -1,0 +1,7 @@
+.create table SigninLogs (TimeGenerated: datetime, UserPrincipalName: string, IPAddress: string, ResultType: string, RiskEventTypes: string, Location: string)
+
+.create table AuditLogs (TimeGenerated: datetime, OperationName: string, ModifiedProperties: string, TargetResources: string, ResultType: string)
+
+.create table OfficeActivity (TimeGenerated: datetime, Operation: string, UserId: string)
+
+.create table imProcessCreate (TimeGenerated: datetime, TargetProcessName: string, TargetProcessCommandLine: string)
